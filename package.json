@@ -15,5 +15,12 @@
   "bugs": {
     "url": "https://github.com/SilentSaint/Stack-overflow-mini-project/issues"
   },
-  "homepage": "https://github.com/SilentSaint/Stack-overflow-mini-project#readme"
+  "homepage": "https://github.com/SilentSaint/Stack-overflow-mini-project#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "ejs": "^2.7.1",
+    "express": "^4.17.1",
+    "md5": "^2.2.1",
+    "mongoose": "^5.7.1"
+  }
 }
