@@ -1,0 +1,19 @@
+{
+  "name": "stackoverflow",
+  "version": "1.0.0",
+  "description": "\"stack overflow mini project",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SilentSaint/Stack-overflow-mini-project.git"
+  },
+  "author": "Shreevatsa G hegde & Rakshith Gowda G",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SilentSaint/Stack-overflow-mini-project/issues"
+  },
+  "homepage": "https://github.com/SilentSaint/Stack-overflow-mini-project#readme"
+}
