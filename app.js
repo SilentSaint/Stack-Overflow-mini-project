@@ -17,12 +17,29 @@ mongoose.connect("mongodb://localhost:27017/stackUsers",{
   useUnifiedTopology: true
 });
 
+
+/////////////////////Schema for all the tables////////////////////////////////////////////
+
 const stackUserSchema = new mongoose.Schema({
+  name : String,
+  profileName : String,
   email : String,
   password : String
 });
 
+const questionSchema = new mongoose.Schema({
+  questionTitle : String,
+  questionDescription : String,
+  questionTags : Array
+});
+
+
+///////////////////////////////////////TABLE NAMES//////////////////////////////////////////////
 const User = mongoose.model("User",stackUserSchema);
+
+const Question = mongoose.model("Question",questionSchema);
+
+////////////////////////////GET REQUESTS//////////////////////////////////////////////////////
 
 app.get("/",function(req,res){
   res.render("home");
@@ -32,8 +49,28 @@ app.get("/register",function(req,res){
   res.render("register");
 });
 
+app.get("/login",function(req,res){
+  res.render("login");
+});
+
+app.get("/compose",function(req,res){
+  res.render("compose");
+});
+
+app.get("/login",function(req,res){
+  res.render("login");
+});
+
+app.get("/stackoverflow",function(req,res){
+  res.render("stackoverflow");
+});
+
+////////////////////////////////////POST REQUESTS////////////////////////////////////////////
+
 app.post("/register",function(req,res){
   const userData = new User({
+    name : req.body.firstName + " " + req.body.lastName,
+    userName : req.body.profileName,
     email : req.body.email,
     password : md5(req.body.password)
   });
@@ -45,10 +82,6 @@ app.post("/register",function(req,res){
     }
   });
 
-});
-
-app.get("/login",function(req,res){
-  res.render("login");
 });
 
 app.post("/login",function(req,res){
@@ -65,7 +98,7 @@ app.post("/login",function(req,res){
       }
     }
   });
-});
+}); 
 
 
 

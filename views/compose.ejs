@@ -1,0 +1,23 @@
+<%- include("partials/stackHeader") -%>
+<h1>Ask a public question</h1>
+<form action="/compose" method="post">
+  <div class="form-group">
+      <label for="title"><strong>Title:</strong></label>
+      <input type="text"  name="titleText" class="form-control"  placeholder="What's your programming question? Be specific">
+      <small id="emailHelp" class="form-text text-muted">Be specific and imagine you’re asking a question to another developer</small>
+  </div>
+  <div class="form-group">
+      <label for="post"><strong>Question Body:</strong></label>
+      <textarea class="form-control" name="postText" rows="8" cols="80"></textarea>
+      <small id="emailHelp" class="form-text text-muted">Include all the information someone would need to answer your question</small>
+  </div>
+  <div class="form-group">
+      <label for="title"><strong>Tags</strong></label>
+      <input type="text" class="form-control"  placeholder="eg:(android html c#)" name="titleText">
+      <small id="emailHelp" class="form-text text-muted">Add up to 5 tags to describe what your question is about</small>
+  </div>
+
+  <button type="submit" name="button" class="btn btn-primary">Post your question</button>
+</form>
+
+<%- include("partials/stackFooter") -%>

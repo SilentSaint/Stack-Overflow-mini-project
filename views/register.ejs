@@ -5,10 +5,23 @@
    <i class="fab fa-stack-overflow fa-6x"></i>
    <h1 class="h3 mb-3 font-weight-normal">Stack OverFlow</h1>
  </div>
-
+ <div class="form-row">
+     <div class="form-label-group col-md-6">
+       <input type="text" class="form-control" name="firstName" placeholder="First Name" autofocus>
+       <label> First Name:</label>
+     </div>
+     <div class="form-label-group col-md-6">
+       <input type="text" class="form-control" name ="lastName" placeholder="Last Name">
+        <label>Last Name:</label>
+     </div>
+   </div>
+   <div class="form-label-group">
+     <input type="text" class="form-control" name="profileName" placeholder="First Name" autofocus>
+     <label>UserName:</label>
+   </div>
  <div class="form-label-group">
-   <input type="email" id="inputEmail" name="email" class="form-control" placeholder="Email address" autocomplete="off" required autofocus>
-   <label for="inputEmail">Email address</label>
+   <input type="email" id="inputEmail" name="email" class="form-control" placeholder="Email address" autocomplete="off" required >
+   <label for="inputEmail">Email</label>
  </div>
 
  <div class="form-label-group">
@@ -16,6 +29,6 @@
    <label for="inputPassword">Password</label>
  </div>
  <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
- <p class="mt-5 mb-3 text-muted text-center">&copy; Stack oveflow</p>
+ <p class="mt-5 mb-3 text-muted text-center">&copy; Stack overflow</p>
 </Form>
 <%- include("partials/footer"); -%>
