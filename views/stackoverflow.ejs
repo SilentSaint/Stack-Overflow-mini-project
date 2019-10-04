@@ -1,10 +1,15 @@
 <%- include("partials/stackHeader"); -%>
-<div class="card">
-  <div class="card-body">
-    <h4 class="card-title">Some question</h4>
-    <p class="card-text">Some Answers</p>
-    <a href="#" class="btn btn-primary btn-sm">Go somewhere</a>
-  </div>
-</div>
+
+    <% questions.forEach(function(element){  %>
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title"><a href="/questionPosts/<%= element._id %>" class="questionTitle"><%= element.questionTitle %></a></h4>
+             <p class="card-text"><%= element.questionDescription.substring(0,101)+"....." %></p>
+            <% element.questionTags.forEach(function(item){ %>
+              <a href="#" class="btn btn-primary btn-sm"><%= item %></a>
+            <% }) %>
+          </div>
+        </div>
+    <%  }) %>
 
 <%- include("partials/stackFooter"); -%>

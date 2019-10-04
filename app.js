@@ -38,7 +38,6 @@ const questionSchema = new mongoose.Schema({
 const User = mongoose.model("User",stackUserSchema);
 
 const Question = mongoose.model("Question",questionSchema);
-
 ////////////////////////////GET REQUESTS//////////////////////////////////////////////////////
 
 app.get("/",function(req,res){
@@ -62,7 +61,14 @@ app.get("/login",function(req,res){
 });
 
 app.get("/stackoverflow",function(req,res){
-  res.render("stackoverflow");
+  Question.find({},function(err,questions){
+    if(err){
+      console.log(err);
+    }
+      res.render("stackoverflow",{
+        questions : questions
+      });
+  });
 });
 
 ////////////////////////////////////POST REQUESTS////////////////////////////////////////////
@@ -98,11 +104,22 @@ app.post("/login",function(req,res){
       }
     }
   });
-}); 
+});
 
-
-
-
+app.post("/compose",function(req,res){
+  const question = new Question({
+    questionTitle : req.body.titleText,
+    questionDescription : req.body.postText,
+    questionTags : req.body.tagsText.split(" ")
+  });
+  question.save(function(err){
+    if(!err){
+      res.redirect("/stackoverflow");
+    }else{
+      console.log(err);
+    }
+  });
+});
 
 
 app.listen(3000,function(){
