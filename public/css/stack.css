@@ -9,12 +9,15 @@
 .btn{
   border-radius: 50em;
 }
-body{
-  margin-top: 6rem;
-   margin-bottom:50px;
+.container{
+  padding-top: 6rem;
+  padding-bottom:50px;
 }
 .questionTitle{
   color : black;
+}
+.card{
+  margin-bottom: 1.5rem;
 }
 /* css for footer */
 .footer-padding {

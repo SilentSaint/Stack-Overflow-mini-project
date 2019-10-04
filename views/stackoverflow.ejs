@@ -3,8 +3,8 @@
     <% questions.forEach(function(element){  %>
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title"><a href="/questionPosts/<%= element._id %>" class="questionTitle"><%= element.questionTitle %></a></h4>
-             <p class="card-text"><%= element.questionDescription.substring(0,101)+"....." %></p>
+          <h4 class="card-title"><a href="/questionAnswer/<%= element._id %>" class="questionTitle"><%= element.questionTitle %></a></h4>
+             <p class="card-text"><pre><%= element.questionDescription.substring(0,101)+"....." %></pre></p>
             <% element.questionTags.forEach(function(item){ %>
               <a href="#" class="btn btn-primary btn-sm"><%= item %></a>
             <% }) %>

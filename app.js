@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const mongoose = require('mongoose');
 const md5 = require('md5');
-
+const _ = require('lodash');
 const app = express();
 app.use(express.static("public"));
 app.set("view engine","ejs");
@@ -44,6 +44,11 @@ app.get("/",function(req,res){
   res.render("home");
 });
 
+app.get("/questionAnswer",function(req,res){
+  res.render("questionAnswer");
+});
+
+
 app.get("/register",function(req,res){
   res.render("register");
 });
@@ -71,6 +76,23 @@ app.get("/stackoverflow",function(req,res){
   });
 });
 
+app.get("/questionAnswer/:questionId",function(req,res){
+  Question.find({},function(err,questions){
+    if(!err){
+      questions.forEach(function(question){
+        if(_.lowerCase(question._id) === _.lowerCase(req.params.questionId)){
+          res.render("questionAnswer",{
+            title : question.questionTitle,
+            body : question.questionDescription
+          });
+        }
+      });
+    }else{
+      console.log(err);
+    }
+  });
+});
+
 ////////////////////////////////////POST REQUESTS////////////////////////////////////////////
 
 app.post("/register",function(req,res){
@@ -82,7 +104,7 @@ app.post("/register",function(req,res){
   });
   userData.save(function(err){
     if(!err){
-      res.render("stackoverflow");
+      res.redirect("stackoverflow");
     }else{
       console.log(err);
     }
@@ -99,7 +121,7 @@ app.post("/login",function(req,res){
     }else{
       if(foundUser){
         if(foundUser.password === password){
-          res.render("stackoverflow");
+          res.redirect("stackoverflow");
         }
       }
     }
