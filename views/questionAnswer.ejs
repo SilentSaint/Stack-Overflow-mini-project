@@ -2,6 +2,23 @@
 
 <h1><%= title %></h1>
 <p style="white-space: pre-line"><%= body %></p>
+<hr style="border-top: 1px solid black">
+<br>
+<% if(answers.length !== 0){ %>
+  <h3>answers</h3>
+<% } %>
+<% answers.forEach(function(answer){ %>
+  <p><%= answer %></p>
+  <hr style="border-top: 1px solid black">
+<% }) %>
 
-
+<form action="/questionAnswer" method="post">
+  <div class="form-group">
+    <label for="post"><strong>Your Answer:</strong></label>
+    <input type="text" style="visibility : hidden"name="questionId" value="<%= questionId %>">
+    <textarea class="form-control" name="answerText" rows="8" cols="80" placeholder="your answer goes here"></textarea>
+    <small id="emailHelp" class="form-text text-muted">Be as descriptive as possible while answering.</small>
+  </div>
+  <button type="submit" name="button" class="btn btn-primary">Post your answer</button>
+</form>
 <%- include("partials/stackFooter") -%>

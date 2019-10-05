@@ -1,7 +1,7 @@
 <%- include("partials/stackHeader"); -%>
 
     <% questions.forEach(function(element){  %>
-      <div class="card">
+      <div class="card bg-light">
         <div class="card-body">
           <h4 class="card-title"><a href="/questionAnswer/<%= element._id %>" class="questionTitle"><%= element.questionTitle %></a></h4>
              <p class="card-text"><pre><%= element.questionDescription.substring(0,101)+"....." %></pre></p>
