@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const md5 = require('md5');
 const _ = require('lodash');
 const app = express();
+
 app.use(express.static("public"));
 app.set("view engine","ejs");
 app.use(bodyParser.urlencoded({extended : true}));
@@ -21,36 +22,52 @@ mongoose.connect("mongodb://localhost:27017/stackUsers",{
 /////////////////////Schema for all the tables////////////////////////////////////////////
 
 const stackUserSchema = new mongoose.Schema({
-  _id : new mongoose.Types.ObjectId(),
+  _id : mongoose.Schema.Types.ObjectId,
   name : String,
   profileName : String,
   email : String,
   password : String
 });
 
-const questionSchema = new mongoose.Schema({
-  _id : new mongoose.Types.ObjectId(),
-  questionTitle : String,
-  questionDescription : String,
-  questionTags : Array,
-  answers : Array
+const answerSchema = new mongoose.Schema({
+  _id : mongoose.Schema.Types.ObjectId,
+  answerDescription : String
 });
 
 const tagsSchema = new mongoose.Schema({
-  _id : new mongoose.Types.ObjectId(),
+  _id : mongoose.Schema.Types.ObjectId,
   name : String,
-  question : {
-    type : Schema.Types.ObjectId,
+  question : [{
+    type : mongoose.Schema.Types.ObjectId,
     ref : 'Question'
-  }
+  }]
 });
+
+
+const questionSchema = new mongoose.Schema({
+  _id : mongoose.Schema.Types.ObjectId,
+  questionTitle : String,
+  questionDescription : String,
+  questionTags :[{
+    type : mongoose.Schema.Types.ObjectId,
+    ref : 'Tag'
+  }],
+  answers : [{
+    type : mongoose.Schema.Types.ObjectId,
+    ref : 'Answer'
+  }]
+});
+
 
 ///////////////////////////////////////TABLE NAMES//////////////////////////////////////////////
 const User = mongoose.model("User",stackUserSchema);
 
-const Question = mongoose.model("Question",questionSchema);
+const Answer = mongoose.model("Answer",answerSchema);
 
 const Tag = mongoose.model("Tag",tagsSchema);
+
+const Question = mongoose.model("Question",questionSchema);
+
 ////////////////////////////GET REQUESTS//////////////////////////////////////////////////////
 
 app.get("/",function(req,res){
@@ -81,6 +98,7 @@ app.get("/login",function(req,res){
 app.get("/answer",function(req,res){
   res.render("answer");
 });
+
 app.get("/stackoverflow",function(req,res){
   Question.find({},function(err,questions){
     if(err){
@@ -93,61 +111,30 @@ app.get("/stackoverflow",function(req,res){
 });
 
 app.get("/questionAnswer/:questionId",function(req,res){
-  Question.find({},function(err,questions){
+  Question.find({}).populate('answers').exec(function(err,questions){
     if(!err){
       questions.forEach(function(question){
         if(_.lowerCase(question._id) === _.lowerCase(req.params.questionId)){
-          res.render("questionAnswer",{
-            title : question.questionTitle,
-            body : question.questionDescription,
-            questionId : question._id,
-            answers : question.answers
-          });
-        }
+                res.render("questionAnswer",{
+                  title : question.questionTitle,
+                  body : question.questionDescription,
+                  questionId : question._id,
+                  answers : question.answers
+                });
+              }
       });
     }else{
       console.log(err);
     }
+
   });
 });
-//////////////////////////////////////functions///////////////////////////////////////////////
-// function getAllTags(){
-//   var uniqueTags = [];
-//   var tagsArray = [];
-//   Question.find({},function(err,questions){
-//     if(!err){
-//       questions.forEach(function(question){
-//         question.questionTags.forEach(function(tag){
-//            tagsArray.push(tag);
-//
-//         });
-//       });
-//       uniqueTags = tagsArray.filter((v, i, a) => a.indexOf(v) === i);
-//       console.log(uniqueTags);
-//       const tags = new Tag({
-//         name : [...uniqueTags]
-//       });
-//       tags.save(function(err){
-//         if(!err){
-//           console.log("success");
-//         }
-//       });
-//     }else {
-//       console.log("error " ,err);
-//     }
-//     return tagsArray;
-//   });
-//   // console.log(query);
-//   // console.log(query.tagsArray);
-//   // console.log("tags Array 2 : ",tagsArray);
-//   // console.log("uniqueArray" ,uniqueTags);
-//   // return allTags;
-// }
-// console.log(getAllTags());
+
 ////////////////////////////////////POST REQUESTS////////////////////////////////////////////
 
 app.post("/register",function(req,res){
   const userData = new User({
+    _id : new mongoose.Types.ObjectId(),
     name : req.body.firstName + " " + req.body.lastName,
     userName : req.body.profileName,
     email : req.body.email,
@@ -160,26 +147,32 @@ app.post("/register",function(req,res){
       console.log(err);
     }
   });
-
 });
 
 app.post("/questionAnswer",function(req,res){
   const qId = req.body.questionId;
-  const answer = req.body.answerText;
-  const question = Question.findOne({_id : qId});
-  console.log(answer);
+  const userAnswer = req.body.answerText;
+
+  const answer = new Answer({
+    _id : new mongoose.Types.ObjectId(),
+    answerDescription : userAnswer
+  });
+
+  answer.save(function(err){
+    if(!err){
+      res.redirect('back');
+    }else{
+      console.log(err);
+    }
+  });
+
 
   Question.findOneAndUpdate({_id : qId},{
-      "$push" : { answers : answer}
+      "$push" : { answers : answer._id}
   },function(err,success){
     if(err){
       console.log(err);
     }
-    else{
-      res.redirect("stackoverflow");
-      console.log("success");
-    }
-
   });
 });
 
@@ -199,15 +192,12 @@ app.post("/login",function(req,res){
   });
 });
 
-// app.post("/questionAnswer",function(req,res){
-//   console.log(req.body);
-// });
-
 app.post("/compose",function(req,res){
+  const questionTags = req.body.tagsText.split(" ");
   const question = new Question({
+    _id : new mongoose.Types.ObjectId(),
     questionTitle : req.body.titleText,
     questionDescription : req.body.postText,
-    questionTags : req.body.tagsText.split(" ")
   });
   question.save(function(err){
     if(!err){
@@ -216,6 +206,39 @@ app.post("/compose",function(req,res){
       console.log(err);
     }
   });
+
+  questionTags.forEach(function(tag){
+    Tag.findOne({name : tag},function(err,results){
+      if(err){
+        console.log(err);
+      }
+      if(!results){
+        const newTag = new Tag({
+          _id : new mongoose.Types.ObjectId(),
+          name : tag
+        });
+        newTag.question.push(question._id);
+        newTag.save(function(err){
+          if(!err){
+            console.log("tag saved successfully");
+          }else{
+            console.log(err);
+          }
+        });
+      }else{
+        Tag.findOneAndUpdate({name : tag},{
+            "$push" : { question : question._id}
+        },function(err,success){
+          if(err){
+            console.log(err);
+          }else{
+            console.log("successfully updated a existing tag");
+          }
+        });
+      }
+    });
+  });
+
 });
 
 
