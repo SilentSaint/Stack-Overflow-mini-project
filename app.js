@@ -21,6 +21,7 @@ mongoose.connect("mongodb://localhost:27017/stackUsers",{
 /////////////////////Schema for all the tables////////////////////////////////////////////
 
 const stackUserSchema = new mongoose.Schema({
+  _id : new mongoose.Types.ObjectId(),
   name : String,
   profileName : String,
   email : String,
@@ -28,6 +29,7 @@ const stackUserSchema = new mongoose.Schema({
 });
 
 const questionSchema = new mongoose.Schema({
+  _id : new mongoose.Types.ObjectId(),
   questionTitle : String,
   questionDescription : String,
   questionTags : Array,
@@ -35,7 +37,12 @@ const questionSchema = new mongoose.Schema({
 });
 
 const tagsSchema = new mongoose.Schema({
-  name : String
+  _id : new mongoose.Types.ObjectId(),
+  name : String,
+  question : {
+    type : Schema.Types.ObjectId,
+    ref : 'Question'
+  }
 });
 
 ///////////////////////////////////////TABLE NAMES//////////////////////////////////////////////
