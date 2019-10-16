@@ -207,22 +207,20 @@ app.post("/compose",function(req,res){
       console.log(err);
     }
   });
-
+  var newTag;
   questionTags.forEach(function(tag){
     Tag.findOne({name : tag},function(err,results){
       if(err){
         console.log(err);
       }
       if(!results){
-        const newTag = new Tag({
+         newTag = new Tag({
           _id : new mongoose.Types.ObjectId(),
           name : tag
         });
         newTag.question.push(question._id);
         newTag.save(function(err){
-          if(!err){
-            console.log("tag saved successfully");
-          }else{
+          if(err){
             console.log(err);
           }
         });
@@ -234,21 +232,20 @@ app.post("/compose",function(req,res){
           }
         });
       }else{
+        //tag is found
         Tag.findOneAndUpdate({name : tag},{
             "$push" : { question : question._id}
         },function(err,success){
           if(err){
             console.log(err);
-          }else{
-            console.log("successfully updated a existing tag");
           }
         });
-        Question.findOneAndUpdate({name : tag},{
-            "$push" : { questionTags : newTag._id} // ILLI problem idhe 
-        },function(err,success){
-          if(err){
-            console.log(err);
-          }
+        Tag.findOne({name : tag}).populate('question').exec(function(err,foundTag){
+          Question.update({_id : question._id},{"$push" : { questionTags : foundTag._id}},function(err,rawResponse){
+            if(err){
+              console.log(err);
+            }
+          });
         });
       }
     });
