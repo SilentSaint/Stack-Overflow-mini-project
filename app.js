@@ -207,14 +207,14 @@ app.post("/compose",function(req,res){
       console.log(err);
     }
   });
-  var newTag;
+
   questionTags.forEach(function(tag){
     Tag.findOne({name : tag},function(err,results){
       if(err){
         console.log(err);
       }
       if(!results){
-         newTag = new Tag({
+        var newTag = new Tag({
           _id : new mongoose.Types.ObjectId(),
           name : tag
         });
@@ -252,7 +252,6 @@ app.post("/compose",function(req,res){
   });
 
 });
-
 
 app.listen(3000,function(){
   console.log("server running on port 3000");
