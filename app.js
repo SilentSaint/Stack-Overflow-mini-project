@@ -100,14 +100,15 @@ app.get("/answer",function(req,res){
 });
 
 app.get("/stackoverflow",function(req,res){
-  Question.find({},function(err,questions){
-    if(err){
-      console.log(err);
-    }
-      res.render("stackoverflow",{
-        questions : questions
-      });
+  Question.find({}).populate('questionTags').exec(function(err,questions){
+      if(err){
+        console.log(err);
+      }
+        res.render("stackoverflow",{
+          questions : questions
+        });
   });
+
 });
 
 app.get("/questionAnswer/:questionId",function(req,res){
@@ -225,6 +226,13 @@ app.post("/compose",function(req,res){
             console.log(err);
           }
         });
+        Question.findOneAndUpdate({_id : question._id},{
+            "$push" : { questionTags : newTag._id}
+        },function(err,success){
+          if(err){
+            console.log(err);
+          }
+        });
       }else{
         Tag.findOneAndUpdate({name : tag},{
             "$push" : { question : question._id}
@@ -233,6 +241,13 @@ app.post("/compose",function(req,res){
             console.log(err);
           }else{
             console.log("successfully updated a existing tag");
+          }
+        });
+        Question.findOneAndUpdate({name : tag},{
+            "$push" : { questionTags : newTag._id} // ILLI problem idhe 
+        },function(err,success){
+          if(err){
+            console.log(err);
           }
         });
       }
