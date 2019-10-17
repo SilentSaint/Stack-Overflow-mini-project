@@ -26,7 +26,8 @@ const stackUserSchema = new mongoose.Schema({
   name : String,
   profileName : String,
   email : String,
-  password : String
+  password : String,
+ // description:String
 });
 
 const answerSchema = new mongoose.Schema({
@@ -41,6 +42,7 @@ const tagsSchema = new mongoose.Schema({
     type : mongoose.Schema.Types.ObjectId,
     ref : 'Question'
   }]
+
 });
 
 
@@ -56,6 +58,7 @@ const questionSchema = new mongoose.Schema({
     type : mongoose.Schema.Types.ObjectId,
     ref : 'Answer'
   }]
+  //user
 });
 
 
@@ -207,7 +210,11 @@ app.post("/compose",function(req,res){
       console.log(err);
     }
   });
+<<<<<<< HEAD
 
+=======
+ // var newTag;
+>>>>>>> 09fa93d637285d56517757cdc5df3105521e0533
   questionTags.forEach(function(tag){
     Tag.findOne({name : tag},function(err,results){
       if(err){
@@ -255,4 +262,6 @@ app.post("/compose",function(req,res){
 
 app.listen(3000,function(){
   console.log("server running on port 3000");
+
 });
+//jhfjshdfjso
