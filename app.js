@@ -57,8 +57,11 @@ const questionSchema = new mongoose.Schema({
   answers : [{
     type : mongoose.Schema.Types.ObjectId,
     ref : 'Answer'
-  }]
-  //user
+  }],
+    userId : {
+      type : mongoose.Schema.Types.ObjectId,
+      ref :'User'
+    }
 });
 
 
@@ -88,6 +91,32 @@ app.get("/register",function(req,res){
 
 app.get("/login",function(req,res){
   res.render("login");
+});
+
+app.get("/tag/:id", function(req,res){
+  Tag.findById( req.params.id).populate('question').exec( function( err, tag){
+  if (err) {
+      console.log(err);
+    }else{
+     
+     console.log(tag);
+      res.render("tags",{
+        tag : tag
+
+        });
+    }
+  });
+})
+
+app.get("/profile",function(req,res){
+  /*User.find({_id: req.User._id},function(err,user){
+    if(err){
+      console.log(err);
+    }else{
+      res.render("profile", {user: user});
+    }*/
+  /*})*/
+  console.log(req.user._id);
 });
 
 app.get("/compose",function(req,res){
@@ -134,6 +163,13 @@ app.get("/questionAnswer/:questionId",function(req,res){
   });
 });
 
+app.get("/users/:id", function(req, res){
+
+  
+res.render("users");
+
+})
+
 ////////////////////////////////////POST REQUESTS////////////////////////////////////////////
 
 app.post("/register",function(req,res){
@@ -146,8 +182,9 @@ app.post("/register",function(req,res){
   });
   userData.save(function(err){
     if(!err){
-      res.redirect("stackoverflow");
-    }else{
+      res.redirect("stackoverflow" );
+      }
+      else{
       console.log(err);
     }
   });
@@ -164,7 +201,7 @@ app.post("/questionAnswer",function(req,res){
 
   answer.save(function(err){
     if(!err){
-      res.redirect('back');
+      res.redirect("back");
     }else{
       console.log(err);
     }
