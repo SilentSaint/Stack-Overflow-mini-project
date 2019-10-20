@@ -1,4 +1,5 @@
 <%- include("partials/stackHeader"); -%>
+
 <h2><%=tag.name%></h2>
 
  
@@ -6,13 +7,10 @@
             <%  tag.question.forEach(function(item){%>
             <div class="card bg-light">
         <div class="card-body">
-             <h4 class="card-title"><a href="/questionAnswer/<%= tag._id %>" class="questionTitle"><%= item.questionTitle %></a></h4>
+             <h4 class="card-title"><a class="questionTitle" href="/questionAnswer/<%= item._id %>" ><%= item.questionTitle %></a></h4>
              <p class="card-text"><pre><%= item.questionDescription %></pre></p>
   </div>
         </div>
        <%  })%>
               
         
-
-<%- include("partials/stackFooter"); -%>
-

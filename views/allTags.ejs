@@ -1,0 +1,33 @@
+<%- include("partials/stackHeader"); -%>
+<div>
+	<div>
+		<div class="jumbotron"><h2>ALL Tags</h2>
+			
+		</div>
+		<div class="row">
+			<form method="POST" action="/tags">
+			<div class="input-group-text">
+			<input type="text" name="tagname" placeholder="enter tag name">
+			<button class="btn btn-success">search</button>
+		</div>
+		</form>
+	
+		<%tags.forEach(function(item){%>
+		<div class="col-md-3 col-sm-6">
+			<div class="thumbnail">
+				
+			</div>
+			<div class="caption ">
+				<span class="border border-light">
+					<a href="/tags/<%=item._id%>"><%=item.name%></a>
+				</span>
+	
+			</div>
+			
+		</div>
+		
+		<% });%>
+			</div>
+	</div>
+</div>
+<%- include("partials/stackFooter"); -%>

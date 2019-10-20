@@ -7,6 +7,7 @@ const md5 = require('md5');
 const _ = require('lodash');
 const app = express();
 
+
 app.use(express.static("public"));
 app.set("view engine","ejs");
 app.use(bodyParser.urlencoded({extended : true}));
@@ -24,10 +25,10 @@ mongoose.connect("mongodb://localhost:27017/stackUsers",{
 const stackUserSchema = new mongoose.Schema({
   _id : mongoose.Schema.Types.ObjectId,
   name : String,
-  profileName : String,
+  userName : String,
   email : String,
   password : String,
- // description:String
+  //description:String
 });
 
 const answerSchema = new mongoose.Schema({
@@ -93,31 +94,8 @@ app.get("/login",function(req,res){
   res.render("login");
 });
 
-app.get("/tag/:id", function(req,res){
-  Tag.findById( req.params.id).populate('question').exec( function( err, tag){
-  if (err) {
-      console.log(err);
-    }else{
-     
-     console.log(tag);
-      res.render("tags",{
-        tag : tag
 
-        });
-    }
-  });
-})
 
-app.get("/profile",function(req,res){
-  /*User.find({_id: req.User._id},function(err,user){
-    if(err){
-      console.log(err);
-    }else{
-      res.render("profile", {user: user});
-    }*/
-  /*})*/
-  console.log(req.user._id);
-});
 
 app.get("/compose",function(req,res){
   res.render("compose");
@@ -133,15 +111,19 @@ app.get("/answer",function(req,res){
 
 app.get("/stackoverflow",function(req,res){
   Question.find({}).populate('questionTags').exec(function(err,questions){
+
       if(err){
         console.log(err);
-      }
+      }else{
+        console.log(questions);
         res.render("stackoverflow",{
           questions : questions
+         });
+        }
         });
   });
 
-});
+
 
 app.get("/questionAnswer/:questionId",function(req,res){
   Question.find({}).populate('answers').exec(function(err,questions){
@@ -164,10 +146,55 @@ app.get("/questionAnswer/:questionId",function(req,res){
 });
 
 app.get("/users/:id", function(req, res){
+  User.findById(req.params.id, function(err,user){
+    if(err){
+      console.log(err);
+    }else{
 
+      res.render("users",{user : user});
+    }
+  })
   
-res.render("users");
+})
 
+app.get("/users", function(req,res){
+  User.find({}, function(err, users){
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.render("allUsers", {
+        users : users
+      });
+    }
+  })
+  
+})
+
+
+app.get("/tags",function(req, res){ 
+  Tag.find({},function(err,tags){
+    if(err){
+      console.log(err);
+    }else{
+      res.render("allTags",{ tags : tags });
+    }
+  })
+})
+
+app.get("/tags/:id", function(req,res){
+  Tag.findById( req.params.id).populate('question').exec( function( err, tag){
+  if (err) {
+      console.log(err);
+    }else{
+     
+     console.log(tag);
+      res.render("tags",{
+        tag : tag
+
+        });
+    }
+  });
 })
 
 ////////////////////////////////////POST REQUESTS////////////////////////////////////////////
@@ -185,7 +212,8 @@ app.post("/register",function(req,res){
       res.redirect("stackoverflow" );
       }
       else{
-      console.log(err);
+        
+     console.log(err);
     }
   });
 });
@@ -226,6 +254,7 @@ app.post("/login",function(req,res){
     }else{
       if(foundUser){
         if(foundUser.password === password){
+          
           res.redirect("stackoverflow");
         }
       }
@@ -293,9 +322,41 @@ app.post("/compose",function(req,res){
 
 });
 
+app.post("/users",function(req,res){
+  User.find({ userName : req.body.name}, function(err,user){
+ 
+    if(err){
+      console.log(err);
+    }else if (user == undefined || user == null ) {
+      alert("No user found");
+    }
+    else{
+      
+            res.render("allUsers",{users: user});
+    }
+  })
+})
+
+app.post("/tags",function(req,res){
+  Tag.find({ name : req.body.tagname}, function(err,tag){
+   
+    if(err){
+      res.alert("no such users")
+    }else if (tag == undefined || tag == null ) {
+      res.alert("No tag found");
+    }
+    else{
+      
+      site="/tags/"+tag[0]._id;
+      res.redirect(site);
+    }
+  })
+})
+
 
 app.listen(3000,function(){
   console.log("server running on port 3000");
 
 });
-//jhfjshdfjso
+ 
+ 
