@@ -9,11 +9,13 @@ const app = express();
 
 
 app.use(express.static("public"));
-app.set("view engine","ejs");
-app.use(bodyParser.urlencoded({extended : true}));
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 
-mongoose.connect("mongodb://localhost:27017/stackUsers",{
-  useNewUrlParser : true,
+mongoose.connect("mongodb://localhost:27017/stackUsers", {
+  useNewUrlParser: true,
   useFindAndModify: false,
   useCreateIndex: true,
   useUnifiedTopology: true
@@ -23,237 +25,247 @@ mongoose.connect("mongodb://localhost:27017/stackUsers",{
 /////////////////////Schema for all the tables////////////////////////////////////////////
 
 const stackUserSchema = new mongoose.Schema({
-  _id : mongoose.Schema.Types.ObjectId,
-  name : String,
-  userName : String,
-  email : String,
-  password : String,
+  _id: mongoose.Schema.Types.ObjectId,
+  name: String,
+  userName: String,
+  email: String,
+  password: String,
   //description:String
 });
 
 const answerSchema = new mongoose.Schema({
-  _id : mongoose.Schema.Types.ObjectId,
-  answerDescription : String
+  _id: mongoose.Schema.Types.ObjectId,
+  answerDescription: String
 });
 
 const tagsSchema = new mongoose.Schema({
-  _id : mongoose.Schema.Types.ObjectId,
-  name : String,
-  question : [{
-    type : mongoose.Schema.Types.ObjectId,
-    ref : 'Question'
+  _id: mongoose.Schema.Types.ObjectId,
+  name: String,
+  question: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Question'
   }]
 
 });
 
 
 const questionSchema = new mongoose.Schema({
-  _id : mongoose.Schema.Types.ObjectId,
-  questionTitle : String,
-  questionDescription : String,
-  questionTags :[{
-    type : mongoose.Schema.Types.ObjectId,
-    ref : 'Tag'
+  _id: mongoose.Schema.Types.ObjectId,
+  questionTitle: String,
+  questionDescription:String,
+  questionTags: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Tag'
   }],
-  answers : [{
-    type : mongoose.Schema.Types.ObjectId,
-    ref : 'Answer'
+  answers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Answer'
   }],
-    userId : {
-      type : mongoose.Schema.Types.ObjectId,
-      ref :'User'
-    }
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 });
+
+questionSchema.index({questionTitle : 'text'});
 
 
 ///////////////////////////////////////TABLE NAMES//////////////////////////////////////////////
-const User = mongoose.model("User",stackUserSchema);
+const User = mongoose.model("User", stackUserSchema);
 
-const Answer = mongoose.model("Answer",answerSchema);
+const Answer = mongoose.model("Answer", answerSchema);
 
-const Tag = mongoose.model("Tag",tagsSchema);
+const Tag = mongoose.model("Tag", tagsSchema);
 
-const Question = mongoose.model("Question",questionSchema);
+const Question = mongoose.model("Question", questionSchema);
 
 ////////////////////////////GET REQUESTS//////////////////////////////////////////////////////
 
-app.get("/",function(req,res){
+app.get("/", function(req, res) {
   res.render("home");
 });
 
-app.get("/questionAnswer",function(req,res){
+app.get("/questionAnswer", function(req, res) {
   res.render("questionAnswer");
 });
 
 
-app.get("/register",function(req,res){
+app.get("/register", function(req, res) {
   res.render("register");
 });
+app.get("/user", function(req, res) {
+  res.render("user");
+});
 
-app.get("/login",function(req,res){
+app.get("/login", function(req, res) {
   res.render("login");
 });
 
-
-
-
-app.get("/compose",function(req,res){
+app.get("/compose", function(req, res) {
   res.render("compose");
 });
 
-app.get("/login",function(req,res){
+app.get("/login", function(req, res) {
   res.render("login");
 });
 
-app.get("/answer",function(req,res){
+app.get("/answer", function(req, res) {
   res.render("answer");
 });
 
-app.get("/stackoverflow",function(req,res){
-  Question.find({}).populate('questionTags').exec(function(err,questions){
+app.get("/stackoverflow", function(req, res) {
+  Question.find({}).populate('questionTags').exec(function(err, questions) {
 
-      if(err){
-        console.log(err);
-      }else{
-        console.log(questions);
-        res.render("stackoverflow",{
-          questions : questions
-         });
-        }
-        });
-  });
-
-
-
-app.get("/questionAnswer/:questionId",function(req,res){
-  Question.find({}).populate('answers').exec(function(err,questions){
-    if(!err){
-      questions.forEach(function(question){
-        if(_.lowerCase(question._id) === _.lowerCase(req.params.questionId)){
-                res.render("questionAnswer",{
-                  title : question.questionTitle,
-                  body : question.questionDescription,
-                  questionId : question._id,
-                  answers : question.answers
-                });
-              }
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(questions);
+      res.render("stackoverflow", {
+        questions: questions
       });
-    }else{
+    }
+  });
+});
+
+
+
+app.get("/questionAnswer/:questionId", function(req, res) {
+  Question.find({}).populate('answers').exec(function(err, questions) {
+    if (!err) {
+      questions.forEach(function(question) {
+        if (_.lowerCase(question._id) === _.lowerCase(req.params.questionId)) {
+          res.render("questionAnswer", {
+            title: question.questionTitle,
+            body: question.questionDescription,
+            questionId: question._id,
+            answers: question.answers
+          });
+        }
+      });
+    } else {
       console.log(err);
     }
 
   });
 });
 
-app.get("/users/:id", function(req, res){
-  User.findById(req.params.id, function(err,user){
-    if(err){
+app.get("/users/:id", function(req, res) {
+  User.findById(req.params.id, function(err, user) {
+    if (err) {
       console.log(err);
-    }else{
+    } else {
 
-      res.render("users",{user : user});
-    }
-  })
-
-})
-
-app.get("/users", function(req,res){
-  User.find({}, function(err, users){
-    if(err){
-      console.log(err);
-    }
-    else{
-      res.render("allUsers", {
-        users : users
+      res.render("users", {
+        user: user
       });
     }
-  })
+  });
 
-})
+});
 
-
-app.get("/tags",function(req, res){
-  Tag.find({},function(err,tags){
-    if(err){
+app.get("/users", function(req, res) {
+  User.find({}, function(err, users) {
+    if (err) {
       console.log(err);
-    }else{
-      res.render("allTags",{ tags : tags });
-    }
-  })
-})
-
-app.get("/tags/:id", function(req,res){
-  Tag.findById( req.params.id).populate('question').exec( function( err, tag){
-  if (err) {
-      console.log(err);
-    }else{
-
-     console.log(tag);
-      res.render("tags",{
-        tag : tag
-
-        });
+    } else {
+      res.render("allUsers", {
+        users: users
+      });
     }
   });
-})
+
+});
+
+
+app.get("/tags", function(req, res) {
+  Tag.find({}, function(err, tags) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.render("allTags", {
+        tags: tags
+      });
+    }
+  });
+});
+
+app.get("/tags/:id", function(req, res) {
+  Tag.findById(req.params.id).populate('question').exec(function(err, tag) {
+    if (err) {
+      console.log(err);
+    } else {
+
+      console.log(tag);
+      res.render("tags", {
+        tag: tag
+
+      });
+    }
+  });
+});
 
 ////////////////////////////////////POST REQUESTS////////////////////////////////////////////
 
-app.post("/register",function(req,res){
+app.post("/register", function(req, res) {
   const userData = new User({
-    _id : new mongoose.Types.ObjectId(),
-    name : req.body.firstName + " " + req.body.lastName,
-    userName : req.body.profileName,
-    email : req.body.email,
-    password : md5(req.body.password)
+    _id: new mongoose.Types.ObjectId(),
+    name: req.body.firstName + " " + req.body.lastName,
+    userName: req.body.profileName,
+    email: req.body.email,
+    password: md5(req.body.password)
   });
-  userData.save(function(err){
-    if(!err){
-      res.redirect("stackoverflow" );
-      }
-      else{
+  userData.save(function(err) {
+    if (!err) {
+      res.redirect("stackoverflow");
+    } else {
 
-     console.log(err);
+      console.log(err);
     }
   });
 });
 
-app.post("/questionAnswer",function(req,res){
+app.post("/questionAnswer", function(req, res) {
   const qId = req.body.questionId;
   const userAnswer = req.body.answerText;
 
   const answer = new Answer({
-    _id : new mongoose.Types.ObjectId(),
-    answerDescription : userAnswer
+    _id: new mongoose.Types.ObjectId(),
+    answerDescription: userAnswer
   });
 
-  answer.save(function(err){
-    if(!err){
+  answer.save(function(err) {
+    if (!err) {
       res.redirect("back");
-    }else{
+    } else {
       console.log(err);
     }
   });
 
 
-  Question.findOneAndUpdate({_id : qId},{
-      "$push" : { answers : answer._id}
-  },function(err,success){
-    if(err){
+  Question.findOneAndUpdate({
+    _id: qId
+  }, {
+    "$push": {
+      answers: answer._id
+    }
+  }, function(err, success) {
+    if (err) {
       console.log(err);
     }
   });
 });
 
-app.post("/login",function(req,res){
+app.post("/login", function(req, res) {
   const email = req.body.email;
   const password = md5(req.body.password);
-  User.findOne({email : email},function(err,foundUser){
-    if(err){
+  User.findOne({
+    email: email
+  }, function(err, foundUser) {
+    if (err) {
       console.log(err);
-    }else{
-      if(foundUser){
-        if(foundUser.password === password){
+    } else {
+      if (foundUser) {
+        if (foundUser.password === password) {
 
           res.redirect("stackoverflow");
         }
@@ -262,56 +274,74 @@ app.post("/login",function(req,res){
   });
 });
 
-app.post("/compose",function(req,res){
+app.post("/compose", function(req, res) {
   const questionTags = req.body.tagsText.split(" ");
   const question = new Question({
-    _id : new mongoose.Types.ObjectId(),
-    questionTitle : req.body.titleText,
-    questionDescription : req.body.postText,
+    _id: new mongoose.Types.ObjectId(),
+    questionTitle: req.body.titleText,
+    questionDescription: req.body.postText,
   });
-  question.save(function(err){
-    if(!err){
+  question.save(function(err) {
+    if (!err) {
       res.redirect("/stackoverflow");
-    }else{
+    } else {
       console.log(err);
     }
   });
- // var newTag;
-  questionTags.forEach(function(tag){
-    Tag.findOne({name : tag},function(err,results){
-      if(err){
+  // var newTag;
+  questionTags.forEach(function(tag) {
+    Tag.findOne({
+      name: tag
+    }, function(err, results) {
+      if (err) {
         console.log(err);
       }
-      if(!results){
+      if (!results) {
         var newTag = new Tag({
-          _id : new mongoose.Types.ObjectId(),
-          name : tag
+          _id: new mongoose.Types.ObjectId(),
+          name: tag
         });
         newTag.question.push(question._id);
-        newTag.save(function(err){
-          if(err){
+        newTag.save(function(err) {
+          if (err) {
             console.log(err);
           }
         });
-        Question.findOneAndUpdate({_id : question._id},{
-            "$push" : { questionTags : newTag._id}
-        },function(err,success){
-          if(err){
+        Question.findOneAndUpdate({
+          _id: question._id
+        }, {
+          "$push": {
+            questionTags: newTag._id
+          }
+        }, function(err, success) {
+          if (err) {
             console.log(err);
           }
         });
-      }else{
+      } else {
         //tag is found
-        Tag.findOneAndUpdate({name : tag},{
-            "$push" : { question : question._id}
-        },function(err,success){
-          if(err){
+        Tag.findOneAndUpdate({
+          name: tag
+        }, {
+          "$push": {
+            question: question._id
+          }
+        }, function(err, success) {
+          if (err) {
             console.log(err);
           }
         });
-        Tag.findOne({name : tag}).populate('question').exec(function(err,foundTag){
-          Question.update({_id : question._id},{"$push" : { questionTags : foundTag._id}},function(err,rawResponse){
-            if(err){
+        Tag.findOne({
+          name: tag
+        }).populate('question').exec(function(err, foundTag) {
+          Question.update({
+            _id: question._id
+          }, {
+            "$push": {
+              questionTags: foundTag._id
+            }
+          }, function(err, rawResponse) {
+            if (err) {
               console.log(err);
             }
           });
@@ -322,42 +352,58 @@ app.post("/compose",function(req,res){
 
 });
 
-<<<<<<< HEAD
-=======
-app.post("/users",function(req,res){
-  User.find({ userName : req.body.name}, function(err,user){
 
-    if(err){
+app.post("/users", function(req, res) {
+  User.find({
+    userName: req.body.name
+  }, function(err, user) {
+
+    if (err) {
       console.log(err);
-    }else if (user == undefined || user == null ) {
+    } else if (user == undefined || user == null) {
       alert("No user found");
+    } else {
+
+      res.render("allUsers", {
+        users: user
+      });
     }
-    else{
+  });
+});
 
-            res.render("allUsers",{users: user});
-    }
-  })
-})
+app.post("/tags", function(req, res) {
+  Tag.find({
+    name: req.body.tagname
+  }, function(err, tag) {
 
-app.post("/tags",function(req,res){
-  Tag.find({ name : req.body.tagname}, function(err,tag){
-
-    if(err){
-      res.alert("no such users")
-    }else if (tag == undefined || tag == null ) {
+    if (err) {
+      res.alert("no such users");
+    } else if (tag == undefined || tag == null) {
       res.alert("No tag found");
-    }
-    else{
+    } else {
 
-      site="/tags/"+tag[0]._id;
+      site = "/tags/" + tag[0]._id;
       res.redirect(site);
     }
-  })
-})
+  });
+});
 
+app.post("/stackoverflow",function(req,res){
+  Question.find({"$text" : {
+    "$search" : req.body.search
+  }}).exec(function(err,questions){
+    console.log(questions);
+    if(err){
+      alert("No questions found"); 
+    }else{
+      res.render("stackoverflow", {
+        questions: questions
+      });
+    }
+  });
+});
 
->>>>>>> 6d6d7745512c2e49c580233b67a77f9670064376
-app.listen(3000,function(){
+app.listen(3000, function() {
   console.log("server running on port 3000");
 
 });
