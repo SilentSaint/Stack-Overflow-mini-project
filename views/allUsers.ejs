@@ -1,0 +1,34 @@
+<%- include("partials/stackHeader"); -%>
+
+<div>
+	<div>
+		<div class="jumbotron"><h2>ALL users</h2>
+			<p>connect with others</p>
+		</div>
+		<form method="POST" action="/users">
+			<div class="input-group-text">
+			<input type="text" name="name" placeholder="enter user name search">
+			<button class="btn btn-success">search</button>
+		</div>
+		</form>
+		
+		<div class="row">
+			
+	
+		<%users.forEach(function(item){%>
+		<div class="col-md-3 col-sm-6">
+			<div class="thumbnail">
+				
+			</div>
+			<div class="caption">
+				<a href="/users/<%=item._id%>"><%=item.name%></a>
+		<p><%=item.userName%></p>
+			</div>
+			
+		</div>
+		
+		<% });%>
+			</div>
+	</div>
+</div>
+<%- include("partials/stackFooter"); -%>

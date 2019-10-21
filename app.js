@@ -7,6 +7,7 @@ const md5 = require('md5');
 const _ = require('lodash');
 const app = express();
 
+
 app.use(express.static("public"));
 app.set("view engine","ejs");
 app.use(bodyParser.urlencoded({extended : true}));
@@ -24,10 +25,10 @@ mongoose.connect("mongodb://localhost:27017/stackUsers",{
 const stackUserSchema = new mongoose.Schema({
   _id : mongoose.Schema.Types.ObjectId,
   name : String,
-  profileName : String,
+  userName : String,
   email : String,
   password : String,
- // description:String
+  //description:String
 });
 
 const answerSchema = new mongoose.Schema({
@@ -57,8 +58,11 @@ const questionSchema = new mongoose.Schema({
   answers : [{
     type : mongoose.Schema.Types.ObjectId,
     ref : 'Answer'
-  }]
-  //user
+  }],
+    userId : {
+      type : mongoose.Schema.Types.ObjectId,
+      ref :'User'
+    }
 });
 
 
@@ -90,6 +94,9 @@ app.get("/login",function(req,res){
   res.render("login");
 });
 
+
+
+
 app.get("/compose",function(req,res){
   res.render("compose");
 });
@@ -104,15 +111,19 @@ app.get("/answer",function(req,res){
 
 app.get("/stackoverflow",function(req,res){
   Question.find({}).populate('questionTags').exec(function(err,questions){
+
       if(err){
         console.log(err);
-      }
+      }else{
+        console.log(questions);
         res.render("stackoverflow",{
           questions : questions
+         });
+        }
         });
   });
 
-});
+
 
 app.get("/questionAnswer/:questionId",function(req,res){
   Question.find({}).populate('answers').exec(function(err,questions){
@@ -134,6 +145,58 @@ app.get("/questionAnswer/:questionId",function(req,res){
   });
 });
 
+app.get("/users/:id", function(req, res){
+  User.findById(req.params.id, function(err,user){
+    if(err){
+      console.log(err);
+    }else{
+
+      res.render("users",{user : user});
+    }
+  })
+
+})
+
+app.get("/users", function(req,res){
+  User.find({}, function(err, users){
+    if(err){
+      console.log(err);
+    }
+    else{
+      res.render("allUsers", {
+        users : users
+      });
+    }
+  })
+
+})
+
+
+app.get("/tags",function(req, res){
+  Tag.find({},function(err,tags){
+    if(err){
+      console.log(err);
+    }else{
+      res.render("allTags",{ tags : tags });
+    }
+  })
+})
+
+app.get("/tags/:id", function(req,res){
+  Tag.findById( req.params.id).populate('question').exec( function( err, tag){
+  if (err) {
+      console.log(err);
+    }else{
+
+     console.log(tag);
+      res.render("tags",{
+        tag : tag
+
+        });
+    }
+  });
+})
+
 ////////////////////////////////////POST REQUESTS////////////////////////////////////////////
 
 app.post("/register",function(req,res){
@@ -146,9 +209,11 @@ app.post("/register",function(req,res){
   });
   userData.save(function(err){
     if(!err){
-      res.redirect("stackoverflow");
-    }else{
-      console.log(err);
+      res.redirect("stackoverflow" );
+      }
+      else{
+
+     console.log(err);
     }
   });
 });
@@ -164,7 +229,7 @@ app.post("/questionAnswer",function(req,res){
 
   answer.save(function(err){
     if(!err){
-      res.redirect('back');
+      res.redirect("back");
     }else{
       console.log(err);
     }
@@ -189,6 +254,7 @@ app.post("/login",function(req,res){
     }else{
       if(foundUser){
         if(foundUser.password === password){
+
           res.redirect("stackoverflow");
         }
       }
@@ -210,11 +276,7 @@ app.post("/compose",function(req,res){
       console.log(err);
     }
   });
-<<<<<<< HEAD
-
-=======
  // var newTag;
->>>>>>> 09fa93d637285d56517757cdc5df3105521e0533
   questionTags.forEach(function(tag){
     Tag.findOne({name : tag},function(err,results){
       if(err){
@@ -260,8 +322,42 @@ app.post("/compose",function(req,res){
 
 });
 
+<<<<<<< HEAD
+=======
+app.post("/users",function(req,res){
+  User.find({ userName : req.body.name}, function(err,user){
+
+    if(err){
+      console.log(err);
+    }else if (user == undefined || user == null ) {
+      alert("No user found");
+    }
+    else{
+
+            res.render("allUsers",{users: user});
+    }
+  })
+})
+
+app.post("/tags",function(req,res){
+  Tag.find({ name : req.body.tagname}, function(err,tag){
+
+    if(err){
+      res.alert("no such users")
+    }else if (tag == undefined || tag == null ) {
+      res.alert("No tag found");
+    }
+    else{
+
+      site="/tags/"+tag[0]._id;
+      res.redirect(site);
+    }
+  })
+})
+
+
+>>>>>>> 6d6d7745512c2e49c580233b67a77f9670064376
 app.listen(3000,function(){
   console.log("server running on port 3000");
 
 });
-//jhfjshdfjso
