@@ -391,10 +391,10 @@ app.post("/tags", function(req, res) {
 app.post("/stackoverflow",function(req,res){
   Question.find({"$text" : {
     "$search" : req.body.search
-  }}).exec(function(err,questions){
+  }}).populate('questionTags').exec(function(err,questions){
     console.log(questions);
     if(err){
-      alert("No questions found"); 
+      alert("No questions found");
     }else{
       res.render("stackoverflow", {
         questions: questions
