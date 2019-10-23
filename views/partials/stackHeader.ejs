@@ -30,13 +30,29 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/users">Users</a>
+        </li>  
+         <li class="nav-item">
+          <a class="nav-link" href="/Profile">Profile</a>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link" href="/tags">Tags</a>
-        </li>
+        </li> -->
       </ul>
-      <a href="/compose" class="btn btn-primary ml-auto">Ask Question</a>
-     
+      <a href="/compose" class="btn btn-light mr-2">Ask Question</a>
+      <form method="POST" action="/stackoverflow">
+        <div class="form-group row userSearch my-auto mr-2">
+          <div class="col-xs-3">
+            <div class="input-group">
+              <input type="text" class="form-control" name="search" placeholder="🔍Search">
+            </div> 
+          </div>
+        </div>
+      </form>
+                  <div class="input-group">
+              <a href="/logout" class="btn btn-primary"> logout</a>
+            </div>
+
+
       <!-- <a href="/profile %>" class="btn btn-sm ml-auto btn-primary">profile</a> -->
   </nav>
   <div class="container">

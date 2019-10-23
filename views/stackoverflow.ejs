@@ -2,16 +2,15 @@
 
 
     <% questions.forEach(function(element){  %>
-      <% console.log(element); %> 
+      <% console.log(element); %>
       <div class="card bg-light">
         <div class="card-body">
           <h4 class="card-title"><a href="/questionAnswer/<%= element._id %>" class="questionTitle"><%= element.questionTitle %></a></h4>
              <p class="card-text"><pre><%= element.questionDescription.substring(0,101)+"....." %></pre></p>
               <% element.questionTags.forEach(function(item){ %>
-              <a href="/tags/<%= item._id %>" class="btn btn-primary btn-sm"><%= item.name %></a>
+              <a href="/tags/<%= item._id %>" class="btn btn-dark btn-sm"><%= item.name %></a>
             <% }) %>
           </div>
         </div>
     <%  }) %>
-
-<%- include("partials/stackFooter"); -%>
+ 

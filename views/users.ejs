@@ -1,17 +1,21 @@
 
-<%- include partials/stackHeader%>
+<%- include("partials/stackHeader"); -%>
 
-<div class="jumbotron"> <h1><%=user.name%></h1>
-		<h4><%=user.userName%></h4>
+<div class="jumbotron">
+	<!-- <img class="userImage" src="public\images\deafultUser.png" alt="default User image" class="img-thumbnail"> -->
+	<h1 class="display-3"><%=user.name%></h1>
+	<h5>Username:</h5>
+	<p><%=user.userName%></p>
+	<h5>Email:</h5>
+	<p><%=user.email%></p>
 </div>
 <div class="continer">
 	<div class="text">
-		<h5>Email:</h5>
-		<p><%=user.email%></p>
+
 	</div>
 
 </div>
 
- 
- <%-include partials/stackFooter%>
- 
+
+
+<%- include("partials/stackFooter"); -%>
