@@ -31,7 +31,7 @@ app.use(require('express-session')({
   secret: "hyy",
   resave : false,
   saveUninitialized : false
-}))
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -40,18 +40,18 @@ passport.use(new LocalStrategy({ usernameField: 'email',
   function(email, password, done) {
     var pass = md5(password);
     User.findOne({ email: email }, function (err, user) {
-        if (err) { 
+        if (err) {
           return done(err);
            }
-      if (!user) { 
+      if (!user) {
         return done(null, false);
          }
-      if (user.password != pass) { 
-        return done(null, false); 
+      if (user.password != pass) {
+        return done(null, false);
       }else{
         return done(null, user);
       }
-      
+
     });
   }
 ));
@@ -65,7 +65,7 @@ passport.use(new LocalStrategy({ usernameField: 'email',
 
 const stackUserSchema = new mongoose.Schema({
   name: String,
-  userame: String,
+  username: String,
   email: String,
   password: String,
   skills: String,
@@ -251,14 +251,14 @@ app.get("/tags/:id", isloggedIn , function(req, res) {
   });
 });
 
-app.get("/profile",function(req, res){
+app.get("/profile", isloggedIn ,function(req, res){
   res.render("profile",{ user : user });
-})
+});
 
 app.get("/logout",function(req,res){
   req.logout();
-  res.redirect("/login")
-})
+  res.redirect("/login");
+});
 
 
 
@@ -283,10 +283,10 @@ app.post("/register", function(req, res) {
   }else{
     passport.authenticate("local")(req ,res ,function(){
       res.redirect("/stackoverflow");
-    })
-    
+    });
+
   }
- })
+});
 });
 
 
@@ -322,9 +322,13 @@ app.post("/questionAnswer", function(req, res) {
   });
 });
 
-app.post('/login', 
+app.post('/login',
   passport.authenticate('local', { failureRedirect: '/login' }),
   function(req, res) {
+  User.findOne({ email : req.body.email },function(err,userData){
+    user=userData;
+    console.log(user);
+  });
     res.redirect('/stackoverflow');
   });
 
@@ -450,9 +454,9 @@ app.post("/tags", function(req, res) {
   }, function(err, tag) {
 
     if (err) {
-      res.alert("no such users");
+      alert("no such users");
     } else if (tag == undefined || tag == null) {
-      res.alert("No tag found");
+      alert("No tag found");
     } else {
 
       site = "/tags/" + tag[0]._id;
