@@ -31,7 +31,7 @@ app.use(require('express-session')({
   secret: "hyy",
   resave : false,
   saveUninitialized : false
-}))
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -40,18 +40,18 @@ passport.use(new LocalStrategy({ usernameField: 'email',
   function(email, password, done) {
     var pass = md5(password);
     User.findOne({ email: email }, function (err, user) {
-        if (err) { 
+        if (err) {
           return done(err);
            }
-      if (!user) { 
+      if (!user) {
         return done(null, false);
          }
-      if (user.password != pass) { 
-        return done(null, false); 
+      if (user.password != pass) {
+        return done(null, false);
       }else{
         return done(null, user);
       }
-      
+
     });
   }
 ));
@@ -64,8 +64,9 @@ passport.use(new LocalStrategy({ usernameField: 'email',
 
 
 const stackUserSchema = new mongoose.Schema({
+  _id:  mongoose.Schema.Types.ObjectId,
   name: String,
-  userame: String,
+  username: String,
   email: String,
   password: String,
   skills: String,
@@ -76,6 +77,8 @@ const answerSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   answerDescription: String
 });
+
+answerSchema.pre('')
 
 const tagsSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
@@ -106,6 +109,35 @@ const questionSchema = new mongoose.Schema({
   }
 });
 
+const blogschema= new mongoose.Schema({
+title: String,
+image: String,
+body: String,
+created : { type: Date, default: Date.now}
+
+});
+
+const statisticsSchema = new mongoose.Schema({
+  questionCount : {
+    type : Number,
+    default : 0
+  },
+  answerCount : {
+    type : Number,
+    default : 0
+  },
+  userCount :{
+    type : Number,
+    default : 0
+  },
+  blogsCount :{
+    type : Number,
+    default : 0
+  }
+});
+
+
+
 questionSchema.index({questionTitle : 'text'});
 
 
@@ -119,12 +151,17 @@ const Tag = mongoose.model("Tag", tagsSchema);
 
 const Question = mongoose.model("Question", questionSchema);
 
+const blog=mongoose.model("blog",blogschema);
+
 ////////////////////////////Global Variable//////////////////////////////////////////////////
 var user= new User();
 
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+
+////////////////////////////////////////PUT REQUESTS//////////////////////////////////////////
 
 
 
@@ -161,12 +198,11 @@ app.get("/answer", isloggedIn, function(req, res) {
 });
 
 app.get("/stackoverflow", isloggedIn, function(req, res) {
-  Question.find({}).populate('questionTags').exec(function(err, questions) {
-
+  console.log(req.user._id);
+  Question.find({}).populate('questionTags').populate('userId').exec(function(err, questions) {
     if (err) {
       console.log(err);
     } else {
-      console.log(questions);
       res.render("stackoverflow", {
         questions: questions
       });
@@ -177,15 +213,18 @@ app.get("/stackoverflow", isloggedIn, function(req, res) {
 
 
 app.get("/questionAnswer/:questionId", isloggedIn, function(req, res) {
-  Question.find({}).populate('answers').exec(function(err, questions) {
+  Question.find({}).populate('answers').populate('userId').exec(function(err, questions) {
     if (!err) {
+
       questions.forEach(function(question) {
         if (_.lowerCase(question._id) === _.lowerCase(req.params.questionId)) {
           res.render("questionAnswer", {
             title: question.questionTitle,
             body: question.questionDescription,
             questionId: question._id,
-            answers: question.answers
+            answers: question.answers,
+            user : question.userId ,
+            cuser : req.user
           });
         }
       });
@@ -195,6 +234,23 @@ app.get("/questionAnswer/:questionId", isloggedIn, function(req, res) {
 
   });
 });
+
+
+/*app.get("/questionAnswer/:questionId", isloggedIn, function(req, res) {
+  Question.find({ _id : req.params.questionId}).populate('answers').populate('userId').exec(function(err, question) {
+    if (!err) {
+        console.log(question);
+            res.render("questionAnswer", {
+            title: question.questionTitle,
+            body: question.questionDescription,
+            questionId: question._id,
+            answers: question.answers
+             });
+    } else {
+      console.log(err);
+    }
+  });
+});*/
 
 app.get("/users/:id", isloggedIn ,function(req, res) {
   User.findById(req.params.id, function(err, user) {
@@ -245,21 +301,82 @@ app.get("/tags/:id", isloggedIn , function(req, res) {
       console.log(tag);
       res.render("tags", {
         tag: tag
-
       });
     }
   });
 });
 
-app.get("/profile",function(req, res){
+app.get("/questionAnswer/:id/update", function(req , res){
+    Question.findById(req.params.id).populate('questionTags').exec(function(err, question){
+      var str="";
+      question.questionTags.forEach(function(item){
+        str = str +" " + item.name;
+      });
+      res.render("editQuestion",{
+        question : question,
+        str : str
+      });
+    });
+});
+
+app.get("/profile", isloggedIn ,function(req, res){
   res.render("profile",{ user : user });
-})
+});
+
+
+app.get("/blogs",isloggedIn, function(req,res){
+ blog.find({}, function(err,blogs){
+if (err) {
+  console.log(err);
+}else{
+  res.render("allBlogs",{blogs: blogs});
+     }
+ });
+});
+
+app.get("/blogs/new", isloggedIn ,function(req,res){
+  res.render("newBlog");
+});
+
+
+app.get("/blogs/:id", isloggedIn, function(req,res){
+  blog.findById(req.params.id, function(err, blog){
+    if (err) {
+      res.redirect("/blogs");
+    }else{
+      res.render("showBlog", {blog: blog});
+    }
+
+  });
+});
+
+
+app.get("/blogs/:id/edit", isloggedIn , function(req,res){
+  blog.findById(req.params.id,function(err,blog){
+    if (err) {
+      res.redirect("/blogs");
+    }else{
+      res.render("editBlog", {blog: blog});
+    }
+  });
+});
+
+
+app.get("/blogs/:id/delete", isloggedIn , function(req,res){
+  blog.findByIdAndRemove(req.params.id, function(err){
+    if (err) {
+      res.redirect("/blogs");
+    }else{
+      res.redirect("/blogs");
+    }
+  });
+});
+
 
 app.get("/logout",function(req,res){
   req.logout();
-  res.redirect("/login")
-})
-
+  res.redirect("/login");
+});
 
 
 ////////////////////////////////////POST REQUESTS////////////////////////////////////////////
@@ -275,18 +392,16 @@ app.post("/register", function(req, res) {
     location : req.body.location
   });
   user=userData;
-  console.log(user);
-
  userData.save(function(err){
   if(err){
     console.log(err);
   }else{
     passport.authenticate("local")(req ,res ,function(){
       res.redirect("/stackoverflow");
-    })
-    
+    });
+
   }
- })
+});
 });
 
 
@@ -313,7 +428,7 @@ app.post("/questionAnswer", function(req, res) {
     _id: qId
   }, {
     "$push": {
-      answers: answer._id
+      answers: answer. _id
     }
   }, function(err, success) {
     if (err) {
@@ -322,9 +437,12 @@ app.post("/questionAnswer", function(req, res) {
   });
 });
 
-app.post('/login', 
+app.post('/login',
   passport.authenticate('local', { failureRedirect: '/login' }),
   function(req, res) {
+  User.findOne({ email : req.body.email },function(err,userData){
+    user=userData;
+  });
     res.redirect('/stackoverflow');
   });
 
@@ -353,6 +471,7 @@ app.post("/compose", function(req, res) {
     _id: new mongoose.Types.ObjectId(),
     questionTitle: req.body.titleText,
     questionDescription: req.body.postText,
+    userId : req.user._id
   });
   question.save(function(err) {
     if (!err) {
@@ -361,7 +480,16 @@ app.post("/compose", function(req, res) {
       console.log(err);
     }
   });
-  // var newTag;
+
+
+/*Question.find({ _id :question._id }  ,function(err, question){
+  if(err){
+    console.log(err);
+  }else{
+   question.userId = user._id;
+     }
+});*/
+    // var newTag;
   questionTags.forEach(function(tag) {
     Tag.findOne({
       name: tag
@@ -450,9 +578,9 @@ app.post("/tags", function(req, res) {
   }, function(err, tag) {
 
     if (err) {
-      res.alert("no such users");
+      alert("no such users");
     } else if (tag == undefined || tag == null) {
-      res.alert("No tag found");
+      alert("No tag found");
     } else {
 
       site = "/tags/" + tag[0]._id;
@@ -475,6 +603,91 @@ app.post("/stackoverflow", function(req,res){
     }
   });
 });
+
+app.post("/questionAnswer/:id/update",function(req,res){
+  const questionTag = req.body.tagsText.split(" ");
+
+  Question.findByIdAndUpdate(req.params.id, req.body.question , function(err , question){
+    if(err){
+      console.log(err);
+    }else{
+        questionTag.forEach(function(tag){
+          Tag.findOne({name : tag}, function(err, foundTag){
+            if(err){
+              console.log(err);
+            }else if(!foundTag){
+              var newTag = new Tag({
+                _id: new mongoose.Types.ObjectId(),
+                name: tag
+              });
+              newTag.question.push(question._id);
+        newTag.save(function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+       Question.findOneAndUpdate({
+          _id: question._id
+        }, {
+          "$push": {
+            questionTags: newTag._id
+          }
+        }, function(err, success) {
+          if (err) {
+            console.log(err);
+          }
+        });
+            }else{
+                foundTag.question.forEach(function(id){
+                  if(id != question._id){
+
+                Question.findByIdAndUpdate(question._id,{'$push':{questionTags : foundTag._id}},function(err,success){
+                  if(err){
+                    console.log(err);
+                  }
+                });
+              Tag.findByIdAndUpdate(foundTag._id,{'$push':{question : question._id}}, function(err, success){
+                if(err){
+                  console.log(err);
+                }
+              });
+                  }
+                });
+            }
+          });
+        });
+      }
+     console.log("Upadted");
+    });
+  var site="/questionAnswer/"+req.params.id;
+ res.redirect(site);
+});
+
+
+
+app.post("/blogs",function(req,res){
+    blog.create(req.body.blog,function(err,newBlog){
+    if (err) {
+      console.log(err);
+    }else{
+      res.redirect("/blogs");
+    }
+  });
+});
+
+
+app.post("/blogs/:id",function(req,res){
+  blog.findByIdAndUpdate(req.params.id,req.body.blog,function(err,updatedblog){
+    if (err) {
+      res.redirect("/blogs");
+    }else{
+      res.redirect("/blogs/"+req.params.id);
+    }
+  });
+
+
+});
+
 
 //////////functions////////////
 

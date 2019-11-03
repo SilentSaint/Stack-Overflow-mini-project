@@ -22,4 +22,14 @@
   </div>
   <button type="submit" name="button" class="btn btn-primary">Post your answer</button>
 </form>
+
+<% if(user.email == cuser.email) {%>
+<a class="btn btn-primary" href="/questionAnswer/<%=questionId %>/update">Update</a>
+<a class="btn btn-primary" href="/questionAnswer/<%=questionId %>/delete">Delete</a>
+
+<%}%>
+
+<p><%=user.name%></p>
+<p><%=user.username%></p>
+<p><%=user.email%></p>
 <%- include("partials/stackFooter") -%>
