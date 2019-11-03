@@ -322,6 +322,7 @@ app.get("/tags/:id", isloggedIn , function(req, res) {
   });
 });
 
+<<<<<<< HEAD
 app.get("/questionAnswer/:id/update", function(req , res){
     Question.findById(req.params.id).populate('questionTags').exec(function(err, question){
       var str="";
@@ -388,11 +389,20 @@ app.get("/blogs/:id/delete", isloggedIn , function(req,res){
   });
 });
 
+=======
+app.get("/profile", isloggedIn ,function(req, res){
+  res.render("profile",{ user : user });
+});
+>>>>>>> 1a9d590573c8d924eb0e25a4e44850fdc486d79f
 
 app.get("/logout",function(req,res){
   req.logout();
   res.redirect("/login");
 });
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1a9d590573c8d924eb0e25a4e44850fdc486d79f
 
 
 ////////////////////////////////////POST REQUESTS////////////////////////////////////////////
@@ -458,6 +468,10 @@ app.post('/login',
   function(req, res) {
   User.findOne({ email : req.body.email },function(err,userData){
     user=userData;
+<<<<<<< HEAD
+=======
+    console.log(user);
+>>>>>>> 1a9d590573c8d924eb0e25a4e44850fdc486d79f
   });
     res.redirect('/stackoverflow');
   });
