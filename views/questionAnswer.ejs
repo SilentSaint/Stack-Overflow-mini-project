@@ -7,7 +7,9 @@
 <br>
 <% if(answers.length !== 0){ %>
   <h3>answers</h3>
+  <p><%= numberofAnswers %></p>
 <% } %>
+
 <% answers.forEach(function(answer){ %>
   <p style="white-space: pre-line"><%= answer.answerDescription %></p>
   <hr style="border-top: 1px solid black">

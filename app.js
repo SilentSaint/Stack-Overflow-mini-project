@@ -78,7 +78,6 @@ const answerSchema = new mongoose.Schema({
   answerDescription: String
 });
 
-answerSchema.pre('')
 
 const tagsSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
@@ -99,6 +98,7 @@ const questionSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tag'
   }],
+  updatedAt : Date,
   answers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Answer'
@@ -107,6 +107,20 @@ const questionSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }
+});
+questionSchema.method('numberOfAnswers',function(){
+  let count = 0;
+  this.answers.forEach(function(answer){
+    count ++ ;
+  });
+  return count;
+});
+
+//implementation of trigger
+
+questionSchema.pre('save',function(next){
+  this.set({ updatedAt: Date.now() });
+  next();
 });
 
 const blogschema= new mongoose.Schema({
@@ -117,24 +131,24 @@ created : { type: Date, default: Date.now}
 
 });
 
-const statisticsSchema = new mongoose.Schema({
-  questionCount : {
-    type : Number,
-    default : 0
-  },
-  answerCount : {
-    type : Number,
-    default : 0
-  },
-  userCount :{
-    type : Number,
-    default : 0
-  },
-  blogsCount :{
-    type : Number,
-    default : 0
-  }
-});
+// const statisticsSchema = new mongoose.Schema({
+//   questionCount : {
+//     type : Number,
+//     default : 0
+//   },
+//   answerCount : {
+//     type : Number,
+//     default : 0
+//   },
+//   userCount :{
+//     type : Number,
+//     default : 0
+//   },
+//   blogsCount :{
+//     type : Number,
+//     default : 0
+//   }
+// });
 
 
 
@@ -218,13 +232,15 @@ app.get("/questionAnswer/:questionId", isloggedIn, function(req, res) {
 
       questions.forEach(function(question) {
         if (_.lowerCase(question._id) === _.lowerCase(req.params.questionId)) {
+
           res.render("questionAnswer", {
             title: question.questionTitle,
             body: question.questionDescription,
             questionId: question._id,
             answers: question.answers,
             user : question.userId ,
-            cuser : req.user
+            cuser : req.user,
+            numberofAnswers : question.numberOfAnswers()
           });
         }
       });
