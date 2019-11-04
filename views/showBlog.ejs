@@ -1,24 +1,21 @@
 
-<%- include("partials/stackHeader") -%>
+<%- include("partials/blogHeader") -%>
 
 <div class="ui main text container segment"><div class="ui huge header"><%= blog.title%></div>
 
 <div class="ui top attached ">
 	<div class="item">
-		
+
 			<img class="ui centered rounded image" src="<%= blog.image %>">
-		
+
 		<div class="content"><p><%= blog.created.toDateString() %></p></div>
 		<div class="description" ><p><%= blog.body %></p></div>
-		
+
 	</div>
 </div>
 
-<a class="ui orange bassic button" href="/blogs/<%= blog._id %>/edit">UPDATE</a>
-<!-- <form method="POST" action="/blogs/<%= blog._id %>/delete" style="display: inline;">
-	<button class="ui red basic button">delete</button>
-</form> -->
-<a class="btn btn-danger" href="/blogs/<%= blog._id %>/delete" >Delete</a>
+<a class="ui secondary button" href="/blogs/<%= blog._id %>/edit">Update</a>
+<a class="ui button" href="/blogs/<%= blog._id %>/delete" >Delete</a>
 </div>
 
-<%- include("partials/stackFooter") -%>
+<%- include("partials/blogFooter") -%>

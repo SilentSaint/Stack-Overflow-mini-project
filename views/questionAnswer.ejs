@@ -3,22 +3,27 @@
 
 <h1 class="display-4"><%= title %></h1>
 <p><strong>Asked by : </strong><%=user.username%></p>
-<hr style="border-top: 1px solid black">
+<hr style="border-top: solid #F0EFEF 1px">
 <div class="ml-5">
   <p style="white-space: pre-line"><%= body %></p>
 
 
 </div>
-<hr style="border-top: 1px solid black">
+<!-- <hr style="border-top: solid #F0EFEF 1px"> -->
 <br>
 <% if(answers.length !== 0){ %>
-  <h3 class="inlineHeading">Answers</h3>
-  <p class="inlineHeading">  x<%= numberofAnswers %></p>
+  <h3 class="inlineHeading"><%= numberofAnswers %></h3>
+  <h3 class="inlineHeading"> Answers</h3>
+  <hr style="border-top: solid #F0EFEF 1px">
 <% } %>
 
 <% answers.forEach(function(answer){ %>
-  <p style="white-space: pre-line"><%= answer.answerDescription %></p>
-  <hr style="border-top: 1px solid black">
+  <div class="ml-5">
+    <p style="white-space: pre-line"><%= answer.answerDescription %></p>
+
+
+  </div>
+  <hr style="border-top: solid #F0EFEF 1px">
 <% }) %>
 
 <% if (cuser.email !== user.email) { %>
@@ -29,14 +34,14 @@
       <textarea class="form-control" name="answerText" rows="8" cols="80" placeholder="your answer goes here"></textarea>
       <small id="emailHelp" class="form-text text-muted">Be as descriptive as possible while answering.</small>
     </div>
-    <button type="submit" name="button" class="btn btn-primary">Post your answer</button>
+    <button type="submit" name="button" class="btn btn-dark">Post your answer</button>
   </form>
 <% } %>
 
 
 <% if(user.email == cuser.email) {%>
-<a class="btn btn-primary" href="/questionAnswer/<%=questionId %>/update">Update</a>
-<a class="btn btn-primary" href="/questionAnswer/<%=questionId %>/delete">Delete</a>
+<a class="btn btn-dark" href="/questionAnswer/<%=questionId %>/update">Update</a>
+<a class="btn btn-dark" href="/questionAnswer/<%=questionId %>/delete">Delete</a>
 
 <%}%>
 

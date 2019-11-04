@@ -67,8 +67,7 @@ const stackUserSchema = new mongoose.Schema({
   username: String,
   email: String,
   password: String,
-  skills: String,
-  location: String
+  description: String
 });
 
 const answerSchema = new mongoose.Schema({
@@ -323,7 +322,6 @@ app.get("/tags/:id", isloggedIn , function(req, res) {
   });
 });
 
-<<<<<<< HEAD
 app.get("/questionAnswer/:id/update", function(req , res){
     Question.findById(req.params.id).populate('questionTags').exec(function(err, question){
       var str="";
@@ -402,21 +400,14 @@ app.get("/blogs/:id/delete", isloggedIn , function(req,res){
     }
   });
 });
-
-=======
 app.get("/profile", isloggedIn ,function(req, res){
   res.render("profile",{ user : user });
 });
->>>>>>> 1a9d590573c8d924eb0e25a4e44850fdc486d79f
 
 app.get("/logout",function(req,res){
   req.logout();
   res.redirect("/login");
 });
-<<<<<<< HEAD
-=======
-
->>>>>>> 1a9d590573c8d924eb0e25a4e44850fdc486d79f
 
 
 ////////////////////////////////////POST REQUESTS////////////////////////////////////////////
@@ -428,8 +419,7 @@ app.post("/register", function(req, res) {
     username: req.body.profileName,
     email: req.body.email,
     password: md5(req.body.password),
-    description : req.body.description,
-    location : req.body.location
+    description : req.body.description
   });
   user=userData;
  userData.save(function(err){
@@ -482,10 +472,9 @@ app.post('/login',
   function(req, res) {
   User.findOne({ email : req.body.email },function(err,userData){
     user=userData;
-<<<<<<< HEAD
-=======
+
     console.log(user);
->>>>>>> 1a9d590573c8d924eb0e25a4e44850fdc486d79f
+
   });
     res.redirect('/stackoverflow');
   });
@@ -600,7 +589,7 @@ app.post("/compose", function(req, res) {
 
 app.post("/users", function(req, res) {
   User.find({
-    userName: req.body.name
+    username: req.body.name
   }, function(err, user) {
 
     if (err) {
@@ -655,7 +644,6 @@ app.post("/questionAnswer/:id/update",function(req,res){
     if(err){
       console.log(err);
     }else{
-      console.log("Upadted");
       var site="/questionAnswer/"+req.params.id;
      res.redirect(site);
       }
