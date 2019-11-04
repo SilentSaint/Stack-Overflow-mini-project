@@ -73,7 +73,11 @@ const stackUserSchema = new mongoose.Schema({
 
 const answerSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
-  answerDescription: String
+  answerDescription: String,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 });
 
 
@@ -117,7 +121,7 @@ questionSchema.method('numberOfAnswers',function(){
 //implementation of trigger
 
 questionSchema.pre('save',function(next){
-  this.set({ updatedAt: Date.now() });
+  this.set({ updatedAt: new Date().toLocaleString() });
   next();
 });
 
@@ -227,10 +231,9 @@ app.get("/stackoverflow", isloggedIn, function(req, res) {
 app.get("/questionAnswer/:questionId", isloggedIn, function(req, res) {
   Question.find({}).populate('answers').populate('userId').exec(function(err, questions) {
     if (!err) {
-
+      console.log(questions);
       questions.forEach(function(question) {
         if (_.lowerCase(question._id) === _.lowerCase(req.params.questionId)) {
-
           res.render("questionAnswer", {
             title: question.questionTitle,
             body: question.questionDescription,
@@ -332,6 +335,19 @@ app.get("/questionAnswer/:id/update", function(req , res){
         str : str
       });
     });
+});
+
+app.get("/questionAnswer/:id/delete",function(req,res){
+    Question.findByIdAndRemove(req.params.id, function(err, success){
+      if(err){
+        console.log(err);
+        var site= "/questionAnswer/"+ req.params.id;
+        res.redirect(site);
+      }else{
+        res.redirect("/stackoverflow");
+      }
+    });
+
 });
 
 app.get("/profile", isloggedIn ,function(req, res){
@@ -633,62 +649,19 @@ app.post("/stackoverflow", function(req,res){
 });
 
 app.post("/questionAnswer/:id/update",function(req,res){
-  const questionTag = req.body.tagsText.split(" ");
+
 
   Question.findByIdAndUpdate(req.params.id, req.body.question , function(err , question){
     if(err){
       console.log(err);
     }else{
-        questionTag.forEach(function(tag){
-          Tag.findOne({name : tag}, function(err, foundTag){
-            if(err){
-              console.log(err);
-            }else if(!foundTag){
-              var newTag = new Tag({
-                _id: new mongoose.Types.ObjectId(),
-                name: tag
-              });
-              newTag.question.push(question._id);
-        newTag.save(function(err) {
-          if (err) {
-            console.log(err);
-          }
-        });
-       Question.findOneAndUpdate({
-          _id: question._id
-        }, {
-          "$push": {
-            questionTags: newTag._id
-          }
-        }, function(err, success) {
-          if (err) {
-            console.log(err);
-          }
-        });
-            }else{
-                foundTag.question.forEach(function(id){
-                  if(id != question._id){
-
-                Question.findByIdAndUpdate(question._id,{'$push':{questionTags : foundTag._id}},function(err,success){
-                  if(err){
-                    console.log(err);
-                  }
-                });
-              Tag.findByIdAndUpdate(foundTag._id,{'$push':{question : question._id}}, function(err, success){
-                if(err){
-                  console.log(err);
-                }
-              });
-                  }
-                });
-            }
-          });
-        });
+      console.log("Upadted");
+      var site="/questionAnswer/"+req.params.id;
+     res.redirect(site);
       }
-     console.log("Upadted");
+
     });
-  var site="/questionAnswer/"+req.params.id;
- res.redirect(site);
+
 });
 
 
