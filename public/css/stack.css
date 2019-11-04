@@ -46,8 +46,12 @@
 	background-color: #6C757D;
 }
 
-
-
+.inlineHeading{
+  display: inline;
+}
+.footerPara{
+  padding-top: 1.5rem;
+}
 .footer p {
 	margin-top: 25px;
 	font-size: 12px;

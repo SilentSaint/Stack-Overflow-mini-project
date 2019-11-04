@@ -1,13 +1,19 @@
 <%- include("partials/stackHeader") -%>
 
 
-<h1><%= title %></h1>
-<p style="white-space: pre-line"><%= body %></p>
+<h1 class="display-4"><%= title %></h1>
+<p><strong>Asked by : </strong><%=user.username%></p>
+<hr style="border-top: 1px solid black">
+<div class="ml-5">
+  <p style="white-space: pre-line"><%= body %></p>
+
+
+</div>
 <hr style="border-top: 1px solid black">
 <br>
 <% if(answers.length !== 0){ %>
-  <h3>answers</h3>
-  <p><%= numberofAnswers %></p>
+  <h3 class="inlineHeading">Answers</h3>
+  <p class="inlineHeading">  x<%= numberofAnswers %></p>
 <% } %>
 
 <% answers.forEach(function(answer){ %>
@@ -15,15 +21,18 @@
   <hr style="border-top: 1px solid black">
 <% }) %>
 
-<form action="/questionAnswer" method="post">
-  <div class="form-group">
-    <label for="post"><strong>Your Answer:</strong></label>
-    <input type="text" style="visibility : hidden"name="questionId" value="<%= questionId %>">
-    <textarea class="form-control" name="answerText" rows="8" cols="80" placeholder="your answer goes here"></textarea>
-    <small id="emailHelp" class="form-text text-muted">Be as descriptive as possible while answering.</small>
-  </div>
-  <button type="submit" name="button" class="btn btn-primary">Post your answer</button>
-</form>
+<% if (cuser.email !== user.email) { %>
+  <form action="/questionAnswer" method="post">
+    <div class="form-group">
+      <label for="post"><strong>Your Answer:</strong></label>
+      <input type="text" style="visibility : hidden"name="questionId" value="<%= questionId %>">
+      <textarea class="form-control" name="answerText" rows="8" cols="80" placeholder="your answer goes here"></textarea>
+      <small id="emailHelp" class="form-text text-muted">Be as descriptive as possible while answering.</small>
+    </div>
+    <button type="submit" name="button" class="btn btn-primary">Post your answer</button>
+  </form>
+<% } %>
+
 
 <% if(user.email == cuser.email) {%>
 <a class="btn btn-primary" href="/questionAnswer/<%=questionId %>/update">Update</a>
@@ -31,7 +40,4 @@
 
 <%}%>
 
-<p><%=user.name%></p>
-<p><%=user.username%></p>
-<p><%=user.email%></p>
 <%- include("partials/stackFooter") -%>
