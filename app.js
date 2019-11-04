@@ -11,8 +11,6 @@ const app = express();
 
 const passportLocalMongoose=require('passport-local-mongoose');
 
-
-
 mongoose.connect("mongodb://localhost:27017/stackUsers", {
   useNewUrlParser: true,
   useFindAndModify: false,
