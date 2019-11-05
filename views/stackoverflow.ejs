@@ -7,7 +7,7 @@
   <div class="card-body">
     <h4 class="card-title"><a href="/questionAnswer/<%= element._id %>" class="questionTitle"><%= element.questionTitle %></a></h4>
     <p class="card-text mb-0">
-      <pre class="mb-0"><%= element.questionDescription.substring(0,130)+"....." %></pre>
+      <pre class="mb-0"><%= element.questionDescription.substring(0,130)+" ..." %></pre>
     </p>
     <% element.questionTags.forEach(function(item){ %>
     <a href="/tags/<%= item._id %>" class="btn btn-dark btn-sm"><%= item.name %></a>

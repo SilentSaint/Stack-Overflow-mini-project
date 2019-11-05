@@ -120,7 +120,7 @@ questionSchema.method('numberOfAnswers',function(){
 //implementation of trigger
 
 questionSchema.pre('save',function(next){
-  this.set({ updatedAt: new Date().toLocaleString() });
+  this.set({ updatedAt: new Date() });  
   next();
 });
 
