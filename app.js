@@ -3,13 +3,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const mongoose = require('mongoose');
-const passport=require('passport');
-const LocalStrategy= require('passport-local');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
 const md5 = require('md5');
 const _ = require('lodash');
 const app = express();
 
-const passportLocalMongoose=require('passport-local-mongoose');
+const passportLocalMongoose = require('passport-local-mongoose');
 
 mongoose.connect("mongodb://localhost:27017/stackUsers", {
   useNewUrlParser: true,
@@ -27,26 +27,30 @@ app.use(bodyParser.urlencoded({
 
 app.use(require('express-session')({
   secret: "hyy",
-  resave : false,
-  saveUninitialized : false
+  resave: false,
+  saveUninitialized: false
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy({ usernameField: 'email',
-    passwordField: 'password'},
+passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+  },
   function(email, password, done) {
     var pass = md5(password);
-    User.findOne({ email: email }, function (err, user) {
-        if (err) {
-          return done(err);
-           }
+    User.findOne({
+      email: email
+    }, function(err, user) {
+      if (err) {
+        return done(err);
+      }
       if (!user) {
         return done(null, false);
-         }
+      }
       if (user.password != pass) {
         return done(null, false);
-      }else{
+      } else {
         return done(null, user);
       }
 
@@ -62,7 +66,7 @@ passport.use(new LocalStrategy({ usernameField: 'email',
 
 
 const stackUserSchema = new mongoose.Schema({
-  _id:  mongoose.Schema.Types.ObjectId,
+  _id: mongoose.Schema.Types.ObjectId,
   name: String,
   username: String,
   email: String,
@@ -94,12 +98,12 @@ const tagsSchema = new mongoose.Schema({
 const questionSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   questionTitle: String,
-  questionDescription:String,
+  questionDescription: String,
   questionTags: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tag'
   }],
-  updatedAt : Date,
+  updatedAt: Date,
   answers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Answer'
@@ -109,26 +113,31 @@ const questionSchema = new mongoose.Schema({
     ref: 'User'
   }
 });
-questionSchema.method('numberOfAnswers',function(){
+questionSchema.method('numberOfAnswers', function() {
   let count = 0;
-  this.answers.forEach(function(answer){
-    count ++ ;
+  this.answers.forEach(function(answer) {
+    count++;
   });
   return count;
 });
 
 //implementation of trigger
 
-questionSchema.pre('save',function(next){
-  this.set({ updatedAt: new Date() });  
+questionSchema.pre('save', function(next) {
+  this.set({
+    updatedAt: new Date()
+  });
   next();
 });
 
-const blogschema= new mongoose.Schema({
-title: String,
-image: String,
-body: String,
-created : { type: Date, default: Date.now}
+const blogschema = new mongoose.Schema({
+  title: String,
+  image: String,
+  body: String,
+  created: {
+    type: Date,
+    default: Date.now
+  }
 
 });
 
@@ -153,7 +162,9 @@ created : { type: Date, default: Date.now}
 
 
 
-questionSchema.index({questionTitle : 'text'});
+questionSchema.index({
+  questionTitle: 'text'
+});
 
 
 stackUserSchema.plugin(passportLocalMongoose);
@@ -166,10 +177,10 @@ const Tag = mongoose.model("Tag", tagsSchema);
 
 const Question = mongoose.model("Question", questionSchema);
 
-const blog=mongoose.model("blog",blogschema);
+const blog = mongoose.model("blog", blogschema);
 
 ////////////////////////////Global Variable//////////////////////////////////////////////////
-var user= new User();
+var user = new User();
 
 
 passport.serializeUser(User.serializeUser());
@@ -187,7 +198,7 @@ app.get("/", function(req, res) {
   res.render("home");
 });
 
-app.get("/questionAnswer", isloggedIn , function(req, res) {
+app.get("/questionAnswer", isloggedIn, function(req, res) {
   res.render("questionAnswer");
 });
 
@@ -195,7 +206,7 @@ app.get("/questionAnswer", isloggedIn , function(req, res) {
 app.get("/register", function(req, res) {
   res.render("register");
 });
-app.get("/user", isloggedIn ,function(req, res) {
+app.get("/user", isloggedIn, function(req, res) {
   res.render("user");
 });
 
@@ -203,7 +214,7 @@ app.get("/login", function(req, res) {
   res.render("login");
 });
 
-app.get("/compose", isloggedIn ,function(req, res) {
+app.get("/compose", isloggedIn, function(req, res) {
   res.render("compose");
 });
 
@@ -212,7 +223,7 @@ app.get("/answer", isloggedIn, function(req, res) {
   res.render("answer");
 });
 
-app.get("/stackoverflow", isloggedIn, function(req, res) {
+app.get("/stackoverflow",  function(req, res) {                                       //isloggedIn,
   console.log(req.user._id);
   Question.find({}).populate('questionTags').populate('userId').exec(function(err, questions) {
     if (err) {
@@ -238,9 +249,9 @@ app.get("/questionAnswer/:questionId", isloggedIn, function(req, res) {
             body: question.questionDescription,
             questionId: question._id,
             answers: question.answers,
-            user : question.userId ,
-            cuser : req.user,
-            numberofAnswers : question.numberOfAnswers()
+            user: question.userId,
+            cuser: req.user,
+            numberofAnswers: question.numberOfAnswers()
           });
         }
       });
@@ -268,7 +279,7 @@ app.get("/questionAnswer/:questionId", isloggedIn, function(req, res) {
   });
 });*/
 
-app.get("/users/:id", isloggedIn ,function(req, res) {
+app.get("/users/:id", isloggedIn, function(req, res) {
   User.findById(req.params.id, function(err, user) {
     if (err) {
       console.log(err);
@@ -296,7 +307,7 @@ app.get("/users", isloggedIn, function(req, res) {
 });
 
 
-app.get("/tags", isloggedIn , function(req, res) {
+app.get("/tags", isloggedIn, function(req, res) {
   Tag.find({}, function(err, tags) {
     if (err) {
       console.log(err);
@@ -308,103 +319,119 @@ app.get("/tags", isloggedIn , function(req, res) {
   });
 });
 
-app.get("/tags/:id", isloggedIn , function(req, res) {
-  Tag.findById(req.params.id).populate('question').exec(function(err, tag) {
+app.get("/tags/:id", function(req, res) {
+  Tag.findById(req.params.id).populate({
+    path: 'question',
+    populate : [ {
+      path : 'questionTags',
+    },{
+      path : 'userId'
+    }]
+  }).exec(function(err, tag) {
     if (err) {
       console.log(err);
     } else {
-
-      console.log(tag);
-      res.render("tags", {
+      console.log(tag);                                           //Console statement here , isloggedIn
+      res.render("tags",{
         tag: tag
       });
     }
   });
 });
 
-app.get("/questionAnswer/:id/update", function(req , res){
-    Question.findById(req.params.id).populate('questionTags').exec(function(err, question){
-      var str="";
-      question.questionTags.forEach(function(item){
-        str = str +" " + item.name;
-      });
-      res.render("editQuestion",{
-        question : question,
-        str : str
-      });
+app.get("/questionAnswer/:id/update", function(req, res) {
+  Question.findById(req.params.id).populate('questionTags').exec(function(err, question) {
+    var str = "";
+    question.questionTags.forEach(function(item) {
+      str = str + " " + item.name;
     });
-});
-
-app.get("/questionAnswer/:id/delete",function(req,res){
-    Question.findByIdAndRemove(req.params.id, function(err, success){
-      if(err){
-        console.log(err);
-        var site= "/questionAnswer/"+ req.params.id;
-        res.redirect(site);
-      }else{
-        res.redirect("/stackoverflow");
-      }
+    res.render("editQuestion", {
+      question: question,
+      str: str
     });
+  });
+});
+
+app.get("/questionAnswer/:id/delete", function(req, res) {
+  Question.findByIdAndRemove(req.params.id, function(err, success) {
+    if (err) {
+      console.log(err);
+      var site = "/questionAnswer/" + req.params.id;
+      res.redirect(site);
+    } else {
+      res.redirect("/stackoverflow");
+    }
+  });
 
 });
 
-app.get("/profile", isloggedIn ,function(req, res){
-  res.render("profile",{ user : user });
+app.get("/profile", isloggedIn, function(req, res) {
+  res.render("profile", {
+    user: user
+  });
 });
 
 
-app.get("/blogs",isloggedIn, function(req,res){
- blog.find({}, function(err,blogs){
-if (err) {
-  console.log(err);
-}else{
-  res.render("allBlogs",{blogs: blogs});
-     }
- });
+app.get("/blogs", isloggedIn, function(req, res) {
+  blog.find({}, function(err, blogs) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.render("allBlogs", {
+        blogs: blogs
+      });
+    }
+  });
 });
 
-app.get("/blogs/new", isloggedIn ,function(req,res){
+app.get("/blogs/new", isloggedIn, function(req, res) {
   res.render("newBlog");
 });
 
 
-app.get("/blogs/:id", isloggedIn, function(req,res){
-  blog.findById(req.params.id, function(err, blog){
+app.get("/blogs/:id", isloggedIn, function(req, res) {
+  blog.findById(req.params.id, function(err, blog) {
     if (err) {
       res.redirect("/blogs");
-    }else{
-      res.render("showBlog", {blog: blog});
+    } else {
+      res.render("showBlog", {
+        blog: blog
+      });
     }
 
   });
 });
 
 
-app.get("/blogs/:id/edit", isloggedIn , function(req,res){
-  blog.findById(req.params.id,function(err,blog){
+app.get("/blogs/:id/edit", isloggedIn, function(req, res) {
+  blog.findById(req.params.id, function(err, blog) {
     if (err) {
       res.redirect("/blogs");
-    }else{
-      res.render("editBlog", {blog: blog});
+    } else {
+      res.render("editBlog", {
+        blog: blog
+      });
     }
   });
 });
 
 
-app.get("/blogs/:id/delete", isloggedIn , function(req,res){
-  blog.findByIdAndRemove(req.params.id, function(err){
+app.get("/blogs/:id/delete", isloggedIn, function(req, res) {
+  blog.findByIdAndRemove(req.params.id, function(err) {
     if (err) {
       res.redirect("/blogs");
-    }else{
+    } else {
       res.redirect("/blogs");
     }
   });
 });
-app.get("/profile", isloggedIn ,function(req, res){
-  res.render("profile",{ user : user });
+app.get("/profile", isloggedIn, function(req, res) {
+  res.render("profile", {
+    user: user
+  });
 });
 
-app.get("/logout",function(req,res){
+app.get("/logout", function(req, res) {
   req.logout();
   res.redirect("/login");
 });
@@ -419,19 +446,19 @@ app.post("/register", function(req, res) {
     username: req.body.profileName,
     email: req.body.email,
     password: md5(req.body.password),
-    description : req.body.description
+    description: req.body.description
   });
-  user=userData;
- userData.save(function(err){
-  if(err){
-    console.log(err);
-  }else{
-    passport.authenticate("local")(req ,res ,function(){
-      res.redirect("/stackoverflow");
-    });
+  user = userData;
+  userData.save(function(err) {
+    if (err) {
+      console.log(err);
+    } else {
+      passport.authenticate("local")(req, res, function() {
+        res.redirect("/stackoverflow");
+      });
 
-  }
-});
+    }
+  });
 });
 
 
@@ -458,7 +485,7 @@ app.post("/questionAnswer", function(req, res) {
     _id: qId
   }, {
     "$push": {
-      answers: answer. _id
+      answers: answer._id
     }
   }, function(err, success) {
     if (err) {
@@ -468,14 +495,18 @@ app.post("/questionAnswer", function(req, res) {
 });
 
 app.post('/login',
-  passport.authenticate('local', { failureRedirect: '/login' }),
+  passport.authenticate('local', {
+    failureRedirect: '/login'
+  }),
   function(req, res) {
-  User.findOne({ email : req.body.email },function(err,userData){
-    user=userData;
+    User.findOne({
+      email: req.body.email
+    }, function(err, userData) {
+      user = userData;
 
-    console.log(user);
+      console.log(user);
 
-  });
+    });
     res.redirect('/stackoverflow');
   });
 
@@ -504,7 +535,7 @@ app.post("/compose", function(req, res) {
     _id: new mongoose.Types.ObjectId(),
     questionTitle: req.body.titleText,
     questionDescription: req.body.postText,
-    userId : req.user._id
+    userId: req.user._id
   });
   question.save(function(err) {
     if (!err) {
@@ -513,16 +544,6 @@ app.post("/compose", function(req, res) {
       console.log(err);
     }
   });
-
-
-/*Question.find({ _id :question._id }  ,function(err, question){
-  if(err){
-    console.log(err);
-  }else{
-   question.userId = user._id;
-     }
-});*/
-    // var newTag;
   questionTags.forEach(function(tag) {
     Tag.findOne({
       name: tag
@@ -537,18 +558,20 @@ app.post("/compose", function(req, res) {
         });
         newTag.question.push(question._id);
         newTag.save(function(err) {
-          if (err) {
-            console.log(err);
-          }
-        });
-        Question.findOneAndUpdate({
-          _id: question._id
-        }, {
-          "$push": {
-            questionTags: newTag._id
-          }
-        }, function(err, success) {
-          if (err) {
+          if (!err) {
+            console.log("tag saved successfully");   //CONSOLE.LOG statement
+            Question.findOneAndUpdate({
+              _id: question._id
+            }, {
+              "$push": {
+                questionTags: newTag._id
+              }
+            }, function(err) {
+              if (err) {
+                console.log(err);
+              }
+            });
+          } else {
             console.log(err);
           }
         });
@@ -560,9 +583,11 @@ app.post("/compose", function(req, res) {
           "$push": {
             question: question._id
           }
-        }, function(err, success) {
+        }, function(err) {
           if (err) {
             console.log(err);
+          }else {
+            console.log("successfully updated a existing tag");
           }
         });
         Tag.findOne({
@@ -574,16 +599,17 @@ app.post("/compose", function(req, res) {
             "$push": {
               questionTags: foundTag._id
             }
-          }, function(err, rawResponse) {
+          }, function(err) {
             if (err) {
               console.log(err);
+            }else{
+              console.log('tag updated in question Array')
             }
           });
         });
       }
     });
   });
-
 });
 
 
@@ -597,7 +623,6 @@ app.post("/users", function(req, res) {
     } else if (user == undefined || user == null) {
       alert("No user found");
     } else {
-
       res.render("allUsers", {
         users: user
       });
@@ -622,14 +647,16 @@ app.post("/tags", function(req, res) {
   });
 });
 
-app.post("/stackoverflow", function(req,res){
-  Question.find({"$text" : {
-    "$search" : req.body.search
-  }}).populate('questionTags').exec(function(err,questions){
+app.post("/stackoverflow", function(req, res) {
+  Question.find({
+    "$text": {
+      "$search": req.body.search
+    }
+  }).populate('questionTags').exec(function(err, questions) {
     console.log(questions);
-    if(err){
+    if (err) {
       alert("No questions found");
-    }else{
+    } else {
       res.render("stackoverflow", {
         questions: questions
       });
@@ -637,40 +664,40 @@ app.post("/stackoverflow", function(req,res){
   });
 });
 
-app.post("/questionAnswer/:id/update",function(req,res){
+app.post("/questionAnswer/:id/update", function(req, res) {
 
 
-  Question.findByIdAndUpdate(req.params.id, req.body.question , function(err , question){
-    if(err){
+  Question.findByIdAndUpdate(req.params.id, req.body.question, function(err, question) {
+    if (err) {
       console.log(err);
-    }else{
-      var site="/questionAnswer/"+req.params.id;
-     res.redirect(site);
-      }
+    } else {
+      var site = "/questionAnswer/" + req.params.id;
+      res.redirect(site);
+    }
 
-    });
+  });
 
 });
 
 
 
-app.post("/blogs",function(req,res){
-    blog.create(req.body.blog,function(err,newBlog){
+app.post("/blogs", function(req, res) {
+  blog.create(req.body.blog, function(err, newBlog) {
     if (err) {
       console.log(err);
-    }else{
+    } else {
       res.redirect("/blogs");
     }
   });
 });
 
 
-app.post("/blogs/:id",function(req,res){
-  blog.findByIdAndUpdate(req.params.id,req.body.blog,function(err,updatedblog){
+app.post("/blogs/:id", function(req, res) {
+  blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedblog) {
     if (err) {
       res.redirect("/blogs");
-    }else{
-      res.redirect("/blogs/"+req.params.id);
+    } else {
+      res.redirect("/blogs/" + req.params.id);
     }
   });
 
@@ -680,8 +707,8 @@ app.post("/blogs/:id",function(req,res){
 
 //////////functions////////////
 
-function isloggedIn(req,res,next){
-  if(req.isAuthenticated()){
+function isloggedIn(req, res, next) {
+  if (req.isAuthenticated()) {
     return next();
   }
   res.redirect("/login");

@@ -13,8 +13,6 @@
   <link rel="stylesheet" href="/css/stack.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
 
-
-
   <title>stack overflow</title>
 </head>
 
@@ -32,6 +30,9 @@
           <a class="nav-link" href="/stackoverflow">Questions<span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="/tags">Tags</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="/users">Users</a>
         </li>
         <li class="nav-item">
@@ -41,12 +42,11 @@
           <a class="nav-link" href="/blogs">blogs</a>
         </li>
       </ul>
-
       <div class="ml-auto">
         <div class="row">
-            <a href="/compose" class="btn btn-light ml-auto mr-1">Ask Question</a>
-            <a href="/blogs/new" class="btn btn-light mx-1">New Blog</a>
-            <a href="/logout" class="btn btn-light mx-1">Log-out</a>
+          <a href="/compose" class="btn btn-light ml-auto mr-1">Ask Question</a>
+          <a href="/blogs/new" class="btn btn-light mx-1">New Blog</a>
+          <a href="/logout" class="btn btn-light mx-1">Log-out</a>
           <div class="col-sm px-0">
             <form method="POST" action="/stackoverflow">
               <div class="form-group row userSearch my-auto mr-2">

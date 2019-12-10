@@ -1,31 +1,65 @@
 <%- include("partials/stackHeader"); -%>
 <div>
-	<div>
-		<div class="jumbotron"><h2>ALL Tags</h2>
-			
-		</div>
-		<div class="row">
+  <div>
+    <div class="jumbotron">
+      <h1 class="display-3">All Tags</h1>
 			<form method="POST" action="/tags">
-			<div class="input-group-text">
-			<input type="text" name="tagname" placeholder="enter tag name">
-			<button class="btn btn-success">search</button>
-		</div>
-		</form>
-	
+				<div class="form-group row userSearch mt-1">
+					<div class="col-xs-3">
+						<div class="input-group">
+							<input type="text" class="form-control" name="tagname" placeholder="🔍Tagname">
+						</div>
+					</div>
+				</div>
+			</form>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div>
+	<div>
+		<div class="row">
 		<%tags.forEach(function(item){%>
 		<div class="col-md-3 col-sm-6">
 			<div class="thumbnail">
-				
+
 			</div>
 			<div class="caption ">
 				<span class="border border-light">
 					<a href="/tags/<%=item._id%>"><%=item.name%></a>
 				</span>
-	
+
 			</div>
-			
+
 		</div>
-		
+
 		<% });%>
 			</div>
 	</div>

@@ -1,10 +1,23 @@
 <%- include("partials/stackHeader"); -%>
 
-            <%  tag.question.forEach(function(item){%>
-            <div class="card bg-light">
-        <div class="card-body">
-             <h4 class="card-title"><a class="questionTitle" href="/questionAnswer/<%= item._id %>" ><%= item.questionTitle %></a></h4>
-             <p class="card-text"><pre><%= item.questionDescription %></pre></p>
+<%  tag.question.forEach(function(item){%>
+<div class="card bg-light">
+  <div class="card-body">
+    <h4 class="card-title"><a class="questionTitle" href="/questionAnswer/<%= item._id %>"><%= item.questionTitle %></a></h4>
+    <p class="card-text">
+      <pre><%= item.questionDescription.substring(0,130)+" ..." %></pre>
+    </p>
+    <% item.questionTags.forEach(function(element){ %>
+    <a href="/tags/<%= element._id %>" class="btn btn-dark btn-sm"><%= element.name %></a>
+    <% }) %>
+    <p class="card-text ml-auto mt-2 mb-0 mr-1">
+      <strong>Asked by :</strong>
+      <%= item.userId.username %>
+      <strong>, on : </strong>
+      <%= item.updatedAt.toString().substring(0,25) %>
+    </p>
   </div>
-        </div>
-       <%  })%>
+</div>
+<%  })%>
+
+<%- include("partials/stackFooter"); -%>
