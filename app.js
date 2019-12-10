@@ -18,7 +18,6 @@ mongoose.connect("mongodb://localhost:27017/stackUsers", {
   useUnifiedTopology: true
 });
 
-
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({
@@ -58,12 +57,7 @@ passport.use(new LocalStrategy({
   }
 ));
 
-
-
-
-
 /////////////////////Schema for all the tables////////////////////////////////////////////
-
 
 const stackUserSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
@@ -83,7 +77,6 @@ const answerSchema = new mongoose.Schema({
   }
 });
 
-
 const tagsSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   name: String,
@@ -93,7 +86,6 @@ const tagsSchema = new mongoose.Schema({
   }]
 
 });
-
 
 const questionSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
@@ -113,6 +105,9 @@ const questionSchema = new mongoose.Schema({
     ref: 'User'
   }
 });
+
+//implementation of stored procedure
+
 questionSchema.method('numberOfAnswers', function() {
   let count = 0;
   this.answers.forEach(function(answer) {
@@ -138,37 +133,16 @@ const blogschema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-
 });
-
-// const statisticsSchema = new mongoose.Schema({
-//   questionCount : {
-//     type : Number,
-//     default : 0
-//   },
-//   answerCount : {
-//     type : Number,
-//     default : 0
-//   },
-//   userCount :{
-//     type : Number,
-//     default : 0
-//   },
-//   blogsCount :{
-//     type : Number,
-//     default : 0
-//   }
-// });
-
-
 
 questionSchema.index({
   questionTitle: 'text'
 });
 
-
 stackUserSchema.plugin(passportLocalMongoose);
+
 ///////////////////////////////////////TABLE NAMES//////////////////////////////////////////////
+
 const User = mongoose.model("User", stackUserSchema);
 
 const Answer = mongoose.model("Answer", answerSchema);
@@ -180,17 +154,10 @@ const Question = mongoose.model("Question", questionSchema);
 const blog = mongoose.model("blog", blogschema);
 
 ////////////////////////////Global Variable//////////////////////////////////////////////////
+
 var user = new User();
-
-
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
-
-
-////////////////////////////////////////PUT REQUESTS//////////////////////////////////////////
-
-
-
 
 ////////////////////////////GET REQUESTS//////////////////////////////////////////////////////
 
@@ -201,7 +168,6 @@ app.get("/", function(req, res) {
 app.get("/questionAnswer", isloggedIn, function(req, res) {
   res.render("questionAnswer");
 });
-
 
 app.get("/register", function(req, res) {
   res.render("register");
@@ -218,13 +184,11 @@ app.get("/compose", isloggedIn, function(req, res) {
   res.render("compose");
 });
 
-
 app.get("/answer", isloggedIn, function(req, res) {
   res.render("answer");
 });
 
-app.get("/stackoverflow",  function(req, res) {                                       //isloggedIn,
-  console.log(req.user._id);
+app.get("/stackoverflow", isloggedIn, function(req, res) {
   Question.find({}).populate('questionTags').populate('userId').exec(function(err, questions) {
     if (err) {
       console.log(err);
@@ -236,12 +200,9 @@ app.get("/stackoverflow",  function(req, res) {                                 
   });
 });
 
-
-
 app.get("/questionAnswer/:questionId", isloggedIn, function(req, res) {
   Question.find({}).populate('answers').populate('userId').exec(function(err, questions) {
     if (!err) {
-      console.log(questions);
       questions.forEach(function(question) {
         if (_.lowerCase(question._id) === _.lowerCase(req.params.questionId)) {
           res.render("questionAnswer", {
@@ -258,39 +219,19 @@ app.get("/questionAnswer/:questionId", isloggedIn, function(req, res) {
     } else {
       console.log(err);
     }
-
   });
 });
-
-
-/*app.get("/questionAnswer/:questionId", isloggedIn, function(req, res) {
-  Question.find({ _id : req.params.questionId}).populate('answers').populate('userId').exec(function(err, question) {
-    if (!err) {
-        console.log(question);
-            res.render("questionAnswer", {
-            title: question.questionTitle,
-            body: question.questionDescription,
-            questionId: question._id,
-            answers: question.answers
-             });
-    } else {
-      console.log(err);
-    }
-  });
-});*/
 
 app.get("/users/:id", isloggedIn, function(req, res) {
   User.findById(req.params.id, function(err, user) {
     if (err) {
       console.log(err);
     } else {
-
       res.render("users", {
         user: user
       });
     }
   });
-
 });
 
 app.get("/users", isloggedIn, function(req, res) {
@@ -303,9 +244,7 @@ app.get("/users", isloggedIn, function(req, res) {
       });
     }
   });
-
 });
-
 
 app.get("/tags", isloggedIn, function(req, res) {
   Tag.find({}, function(err, tags) {
@@ -319,7 +258,7 @@ app.get("/tags", isloggedIn, function(req, res) {
   });
 });
 
-app.get("/tags/:id", function(req, res) {
+app.get("/tags/:id", isloggedIn, function(req, res) {
   Tag.findById(req.params.id).populate({
     path: 'question',
     populate : [ {
@@ -331,7 +270,6 @@ app.get("/tags/:id", function(req, res) {
     if (err) {
       console.log(err);
     } else {
-      console.log(tag);                                           //Console statement here , isloggedIn
       res.render("tags",{
         tag: tag
       });
@@ -362,7 +300,6 @@ app.get("/questionAnswer/:id/delete", function(req, res) {
       res.redirect("/stackoverflow");
     }
   });
-
 });
 
 app.get("/profile", isloggedIn, function(req, res) {
@@ -370,7 +307,6 @@ app.get("/profile", isloggedIn, function(req, res) {
     user: user
   });
 });
-
 
 app.get("/blogs", isloggedIn, function(req, res) {
   blog.find({}, function(err, blogs) {
@@ -388,7 +324,6 @@ app.get("/blogs/new", isloggedIn, function(req, res) {
   res.render("newBlog");
 });
 
-
 app.get("/blogs/:id", isloggedIn, function(req, res) {
   blog.findById(req.params.id, function(err, blog) {
     if (err) {
@@ -402,7 +337,6 @@ app.get("/blogs/:id", isloggedIn, function(req, res) {
   });
 });
 
-
 app.get("/blogs/:id/edit", isloggedIn, function(req, res) {
   blog.findById(req.params.id, function(err, blog) {
     if (err) {
@@ -414,7 +348,6 @@ app.get("/blogs/:id/edit", isloggedIn, function(req, res) {
     }
   });
 });
-
 
 app.get("/blogs/:id/delete", isloggedIn, function(req, res) {
   blog.findByIdAndRemove(req.params.id, function(err) {
@@ -435,7 +368,6 @@ app.get("/logout", function(req, res) {
   req.logout();
   res.redirect("/login");
 });
-
 
 ////////////////////////////////////POST REQUESTS////////////////////////////////////////////
 
@@ -461,8 +393,6 @@ app.post("/register", function(req, res) {
   });
 });
 
-
-
 app.post("/questionAnswer", function(req, res) {
   const qId = req.body.questionId;
   const userAnswer = req.body.answerText;
@@ -479,7 +409,6 @@ app.post("/questionAnswer", function(req, res) {
       console.log(err);
     }
   });
-
 
   Question.findOneAndUpdate({
     _id: qId
@@ -503,31 +432,9 @@ app.post('/login',
       email: req.body.email
     }, function(err, userData) {
       user = userData;
-
-      console.log(user);
-
     });
     res.redirect('/stackoverflow');
   });
-
-/*app.post("/login", function(req, res) {
-  const email = req.body.email;
-  const password = md5(req.body.password);
-  User.findOne({
-    email: email
-  }, function(err, foundUser) {
-    if (err) {
-      console.log(err);
-    } else {
-      if (foundUser) {
-        if (foundUser.password === password) {
-
-          res.redirect("stackoverflow");
-        }
-      }
-    }
-  });
-});*/
 
 app.post("/compose", function(req, res) {
   const questionTags = req.body.tagsText.split(" ");
@@ -538,9 +445,7 @@ app.post("/compose", function(req, res) {
     userId: req.user._id
   });
   question.save(function(err) {
-    if (!err) {
-      res.redirect("/stackoverflow");
-    } else {
+    if (err) {
       console.log(err);
     }
   });
@@ -559,7 +464,6 @@ app.post("/compose", function(req, res) {
         newTag.question.push(question._id);
         newTag.save(function(err) {
           if (!err) {
-            console.log("tag saved successfully");   //CONSOLE.LOG statement
             Question.findOneAndUpdate({
               _id: question._id
             }, {
@@ -587,7 +491,6 @@ app.post("/compose", function(req, res) {
           if (err) {
             console.log(err);
           }else {
-            console.log("successfully updated a existing tag");
           }
         });
         Tag.findOne({
@@ -602,16 +505,14 @@ app.post("/compose", function(req, res) {
           }, function(err) {
             if (err) {
               console.log(err);
-            }else{
-              console.log('tag updated in question Array')
             }
           });
         });
       }
     });
   });
+  res.redirect('/stackoverflow');
 });
-
 
 app.post("/users", function(req, res) {
   User.find({
@@ -653,7 +554,7 @@ app.post("/stackoverflow", function(req, res) {
       "$search": req.body.search
     }
   }).populate('questionTags').exec(function(err, questions) {
-    console.log(questions);
+
     if (err) {
       alert("No questions found");
     } else {
@@ -666,8 +567,7 @@ app.post("/stackoverflow", function(req, res) {
 
 app.post("/questionAnswer/:id/update", function(req, res) {
 
-
-  Question.findByIdAndUpdate(req.params.id, req.body.question, function(err, question) {
+Question.findByIdAndUpdate(req.params.id, req.body.question, function(err, question) {
     if (err) {
       console.log(err);
     } else {
@@ -679,8 +579,6 @@ app.post("/questionAnswer/:id/update", function(req, res) {
 
 });
 
-
-
 app.post("/blogs", function(req, res) {
   blog.create(req.body.blog, function(err, newBlog) {
     if (err) {
@@ -691,7 +589,6 @@ app.post("/blogs", function(req, res) {
   });
 });
 
-
 app.post("/blogs/:id", function(req, res) {
   blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedblog) {
     if (err) {
@@ -700,10 +597,7 @@ app.post("/blogs/:id", function(req, res) {
       res.redirect("/blogs/" + req.params.id);
     }
   });
-
-
 });
-
 
 //////////functions////////////
 
@@ -716,5 +610,4 @@ function isloggedIn(req, res, next) {
 
 app.listen(3000, function() {
   console.log("server running on port 3000");
-
 });

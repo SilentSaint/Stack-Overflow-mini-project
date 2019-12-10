@@ -1,5 +1,5 @@
 
-<%- include("partials/stackHeader") -%>
+<%- include("partials/blogHeader") -%>
 
 <div class="ui main text container segment"><div class="ui huge header">EDIT <%blog.title%></div>
 <form class="ui form" action="/blogs/<%= blog._id %>" method="POST">
@@ -15,12 +15,12 @@
 		<label>body</label>
 		<textarea name="blog[body]"><%=blog.body%></textarea>
 	</div>
-	
-	
-	
+
+
+
 	<button class="ui blue basic button">submit</button>
 
 
 </form>
 </div>
-<%- include("partials/stackFooter") -%>
+<%- include("partials/blogFooter") -%>
