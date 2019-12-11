@@ -192,6 +192,7 @@ app.get("/stackoverflow", isloggedIn, function(req, res) {
   Question.find({}).populate('questionTags').populate('userId').exec(function(err, questions) {
     if (err) {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     } else {
       res.render("stackoverflow", {
         questions: questions
@@ -218,6 +219,7 @@ app.get("/questionAnswer/:questionId", isloggedIn, function(req, res) {
       });
     } else {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     }
   });
 });
@@ -226,6 +228,7 @@ app.get("/users/:id", isloggedIn, function(req, res) {
   User.findById(req.params.id, function(err, user) {
     if (err) {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     } else {
       res.render("users", {
         user: user
@@ -238,6 +241,7 @@ app.get("/users", isloggedIn, function(req, res) {
   User.find({}, function(err, users) {
     if (err) {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     } else {
       res.render("allUsers", {
         users: users
@@ -250,6 +254,7 @@ app.get("/tags", isloggedIn, function(req, res) {
   Tag.find({}, function(err, tags) {
     if (err) {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     } else {
       res.render("allTags", {
         tags: tags
@@ -269,6 +274,7 @@ app.get("/tags/:id", isloggedIn, function(req, res) {
   }).exec(function(err, tag) {
     if (err) {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     } else {
       res.render("tags",{
         tag: tag
@@ -312,6 +318,7 @@ app.get("/blogs", isloggedIn, function(req, res) {
   blog.find({}, function(err, blogs) {
     if (err) {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     } else {
       res.render("allBlogs", {
         blogs: blogs
@@ -384,6 +391,7 @@ app.post("/register", function(req, res) {
   userData.save(function(err) {
     if (err) {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     } else {
       passport.authenticate("local")(req, res, function() {
         res.redirect("/stackoverflow");
@@ -407,6 +415,7 @@ app.post("/questionAnswer", function(req, res) {
       res.redirect("back");
     } else {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     }
   });
 
@@ -419,6 +428,7 @@ app.post("/questionAnswer", function(req, res) {
   }, function(err, success) {
     if (err) {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     }
   });
 });
@@ -447,6 +457,7 @@ app.post("/compose", function(req, res) {
   question.save(function(err) {
     if (err) {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     }
   });
   questionTags.forEach(function(tag) {
@@ -455,6 +466,7 @@ app.post("/compose", function(req, res) {
     }, function(err, results) {
       if (err) {
         console.log(err);
+        res.status(404).send('<h1>Error</h1>');
       }
       if (!results) {
         var newTag = new Tag({
@@ -473,10 +485,12 @@ app.post("/compose", function(req, res) {
             }, function(err) {
               if (err) {
                 console.log(err);
+                res.status(404).send('<h1>Error</h1>');
               }
             });
           } else {
             console.log(err);
+            res.status(404).send('<h1>Error</h1>');
           }
         });
       } else {
@@ -490,6 +504,7 @@ app.post("/compose", function(req, res) {
         }, function(err) {
           if (err) {
             console.log(err);
+            res.status(404).send('<h1>Error</h1>');
           }else {
           }
         });
@@ -505,6 +520,7 @@ app.post("/compose", function(req, res) {
           }, function(err) {
             if (err) {
               console.log(err);
+              res.status(404).send('<h1>Error</h1>');
             }
           });
         });
@@ -521,8 +537,9 @@ app.post("/users", function(req, res) {
 
     if (err) {
       console.log(err);
-    } else if (user == undefined || user == null) {
-      alert("No user found");
+      res.status(404).send('<h1>Error</h1>');
+    } else if (user == undefined || user == '') {
+      res.status(404).send('<h1>Not found</h1>');
     } else {
       res.render("allUsers", {
         users: user
@@ -537,11 +554,11 @@ app.post("/tags", function(req, res) {
   }, function(err, tag) {
 
     if (err) {
-      alert("no such users");
-    } else if (tag == undefined || tag == null) {
-      alert("No tag found");
+      console.log(err);
+      res.status(404).send('<h1>Error</h1>');
+    } else if (tag == undefined || tag == '') {
+      res.status(404).send('<h1>Not found</h1>');
     } else {
-
       site = "/tags/" + tag[0]._id;
       res.redirect(site);
     }
@@ -556,7 +573,8 @@ app.post("/stackoverflow", function(req, res) {
   }).populate('questionTags').exec(function(err, questions) {
 
     if (err) {
-      alert("No questions found");
+      console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     } else {
       res.render("stackoverflow", {
         questions: questions
@@ -570,6 +588,7 @@ app.post("/questionAnswer/:id/update", function(req, res) {
 Question.findByIdAndUpdate(req.params.id, req.body.question, function(err, question) {
     if (err) {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     } else {
       var site = "/questionAnswer/" + req.params.id;
       res.redirect(site);
@@ -583,6 +602,7 @@ app.post("/blogs", function(req, res) {
   blog.create(req.body.blog, function(err, newBlog) {
     if (err) {
       console.log(err);
+      res.status(404).send('<h1>Error</h1>');
     } else {
       res.redirect("/blogs");
     }
